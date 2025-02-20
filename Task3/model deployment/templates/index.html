@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Booking Cancellation Prediction</title>
+</head>
+<body>
+    <h1>Hotel Booking Cancellation Prediction</h1>
+    <form method="post">
+        <label>Number of Adults:</label>
+        <input type="number" name="number_of_adults" min="1" max="10" required><br>
+
+        <label>Number of Children:</label>
+        <input type="number" name="number_of_children" min="0" max="10" required><br>
+
+        <label>Number of Weekend Nights:</label>
+        <input type="number" name="number_of_weekend_nights" min="0" max="7" required><br>
+
+        <label>Number of Week Nights:</label>
+        <input type="number" name="number_of_week_nights" min="0" max="14" required><br>
+
+        <label>Car Parking Space:</label>
+        <select name="car_parking_space">
+            <option value="0">0</option>
+            <option value="1">1</option>
+        </select><br>
+
+        <label>Lead Time:</label>
+        <input type="number" name="lead_time" min="0" max="500" required><br>
+
+        <label>Repeated Guest:</label>
+        <select name="repeated">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </select><br>
+
+        <label>Previous Cancellation:</label>
+        <select name="P_C">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </select><br>
+
+        <label>Previous Not-Canceled:</label>
+        <select name="P_not_C">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </select><br>
+
+        <label>Average Price:</label>
+        <input type="number" name="average_price" min="0" max="1000" required><br>
+
+        <label>Number of Special Requests:</label>
+        <input type="number" name="special_requests" min="0" max="5" required><br>
+
+        <label>Reservation Year:</label>
+        <input type="number" name="reservation_year" min="2000" max="2100" required><br>
+
+        <label>Reservation Month:</label>
+        <input type="number" name="reservation_month" min="1" max="12" required><br>
+
+        <label>Reservation Day:</label>
+        <input type="number" name="reservation_day" min="1" max="31" required><br>
+
+        <label>Reservation Day of Week:</label>
+        <input type="number" name="reservation_dayofweek" min="0" max="6" required><br>
+
+        <label>Meal Plan:</label>
+        <select name="meal_plan">
+            <option value="Meal Plan 1">Meal Plan 1</option>
+            <option value="Meal Plan 2">Meal Plan 2</option>
+            <option value="Meal Plan 3">Meal Plan 3</option>
+            <option value="Not Selected">Not Selected</option>
+        </select><br>
+
+        <label>Room Type:</label>
+        <select name="room_type">
+            <option value="Room Type 1">Room Type 1</option>
+            <option value="Room Type 2">Room Type 2</option>
+            <option value="Room Type 3">Room Type 3</option>
+            <option value="Room Type 4">Room Type 4</option>
+            <option value="Room Type 5">Room Type 5</option>
+            <option value="Room Type 6">Room Type 6</option>
+            <option value="Room Type 7">Room Type 7</option>
+        </select><br>
+
+        <label>Market Segment:</label>
+        <select name="market_segment">
+            <option value="Corporate">Corporate</option>
+            <option value="Online">Online</option>
+            <option value="Offline">Offline</option>
+            <option value="Complementary">Complementary</option>
+        </select><br>
+
+        <label>Select Model:</label>
+        <select name="model_choice">
+            <option value="KNN">KNN</option>
+            <option value="Logistic Regression">Logistic Regression</option>
+        </select><br>
+
+        <button type="submit">Predict Cancellation</button>
+    </form>
+
+    {% if prediction %}
+        <h2>Prediction: {{ prediction }}</h2>
+    {% endif %}
+</body>
+</html>
