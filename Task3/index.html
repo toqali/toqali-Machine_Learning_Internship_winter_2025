@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hotel Booking Dashboard</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <!-- Chart.js for visualization -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container">
+  <h1 class="mt-4">Hotel Booking Dashboard</h1>
+  
+  <!-- Summary Cards -->
+  <div class="row mt-4">
+    <div class="col-md-4">
+      <div class="card text-white bg-primary mb-3">
+        <div class="card-header">Total Bookings</div>
+        <div class="card-body">
+          <h5 class="card-title">{{ total_bookings }}</h5>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card text-white bg-danger mb-3">
+        <div class="card-header">Canceled Bookings</div>
+        <div class="card-body">
+          <h5 class="card-title">{{ cancelled }}</h5>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card text-white bg-success mb-3">
+        <div class="card-header">Not Canceled Bookings</div>
+        <div class="card-body">
+          <h5 class="card-title">{{ not_cancelled }}</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart for Room Types -->
+  <h3 class="mt-4">Room Type Distribution</h3>
+  <canvas id="roomChart" width="400" height="200"></canvas>
+  
+  <!-- Link to detailed bookings page -->
+  <div class="mt-4">
+    <a href="/bookings" class="btn btn-info">View Bookings Table</a>
+  </div>
+</div>
+
+<!-- Safely pass Flask variables to JavaScript -->
+<script type="application/json" id="room-data">
+  {{ room_counts | tojson }}
+</script>
+
+<script>
+  // Get and parse room_counts data from the hidden script tag
+  var roomCounts = JSON.parse(document.getElementById("room-data").textContent || "{}");
+
+  var labels = Object.keys(roomCounts);
+  var data = Object.values(roomCounts);
+
+  var ctx = document.getElementById('roomChart').getContext('2d');
+  var roomChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+          labels: labels,
+          datasets: [{
+              label: 'Room Types',
+              data: data,
+              backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#8A2BE2', '#FF4500'],
+          }]
+      }
+  });
+</script>
+</body>
+</html>
