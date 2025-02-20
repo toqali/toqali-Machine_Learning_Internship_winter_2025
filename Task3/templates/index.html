@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <title>Hotel Booking Status Prediction Using ML</title>
+    <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Arimo' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Hind:300' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .content {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+        }
+        .bg-img {
+            width: 100%;
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        h1 {
+            text-align: center;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-img">
+        <div class="content">
+            <h1>Hotel Booking Status Prediction</h1>
+            <form action="{{ url_for('predict') }}" method="post">
+                
+                <!-- Numeric Inputs -->
+
+                <input type="number" name="number of adults" placeholder="Number of Adults" required min="0">
+                <input type="number" name="number of children" placeholder="Number of Children" required min="0">
+                <input type="number" name="number of weekend nights" placeholder="Number of Weekend Nights" required min="0">
+                <input type="number" name="number of week nights" placeholder="Number of Week Nights" required min="0">
+                <input type="number" name="lead time" placeholder="Lead Time" required>
+                <input type="number" name="average price " placeholder="Average Price" required step="0.01">
+                <input type="number" name="car parking space" placeholder="Car Parking Space (1 for Yes, 0 for No)" required min="0">
+                <input type="number" name="repeated" placeholder="Repeated Booking (1 for Yes, 0 for No)" required min="0">
+                <input type="number" name="P-C" placeholder="P-C (Previous Cancellations)" required min="0">
+                <input type="number" name="P-not-C" placeholder="P-not-C (Previous Non-Cancellations)" required min="0">
+                <input type="number" name="special requests" placeholder="Special Requests Count" required min="0">
+
+                <!-- Date Input -->
+                <label for="date of reservation">Date of Reservation:</label>
+                <input type="date" name="date of reservation" required>
+
+                <!-- Dropdown Selections -->
+                <label for="type of meal">Type of Meal Plan:</label>
+                <select name="type of meal" required>
+                    <option value="Meal Plan 1">Meal Plan 1</option>
+                    <option value="Meal Plan 2">Meal Plan 2</option>
+                    <option value="Meal Plan 3">Meal Plan 3</option>
+                    <option value="Not Selected">Not Selected</option>
+                </select>
+
+                <label for="room type">Room Type:</label>
+                <select name="room type" required>
+                    <option value="Room_Type 1">Room Type 1</option>
+                    <option value="Room_Type 2">Room Type 2</option>
+                    <option value="Room_Type 3">Room Type 3</option>
+                    <option value="Room_Type 4">Room Type 4</option>
+                    <option value="Room_Type 5">Room Type 5</option>
+                    <option value="Room_Type 6">Room Type 6</option>
+                    <option value="Room_Type 7">Room Type 7</option>
+                </select>
+
+                <label for="market segment type">Market Segment Type:</label>
+                <select name="market segment type" required>
+                    <option value="Offline">Offline</option>
+                    <option value="Online">Online</option>
+                    <option value="Corporate">Corporate</option>
+                    <option value="Aviation">Aviation</option>
+                    <option value="Complementary">Complementary</option>
+                </select>
+
+                <button type="submit">Predict Booking Status</button>
+            </form>
+            <br>
+            <h3>{{ prediction_text }}</h3>
+        </div>
+    </div>
+</body>
+
+</html>
