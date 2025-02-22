@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Booking Cancellation Prediction</title>
+    <style>
+        body{
+            color: rgba(84, 49, 11, 0.95);
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+        }
+
+        form {
+            background: rgba(234, 222, 177, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            width: 350px;
+            text-align: center;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: rgb(124, 81, 16);
+            color: white;
+            padding: 10px;
+            margin-top: 10px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: rgba(179, 95, 0, 0.34);
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Hotel Booking Cancellation Prediction</h2>
+
+    <form action="/predict" method="post">
+        <label>Number of Adults</label>
+        <input type="number" name="number_of_adults" required><br>
+
+        <label>Number of Children</label>
+        <input type="number" name="number_of_children"><br>
+
+        <label>Number of Weekend Nights</label>
+        <select name="number_of_weekend_nights" required>
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+        </select><br>
+
+        <label>Number of Week Nights</label>
+        <select name="number_of_week_nights" required>
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+        </select><br>
+
+        <label>Type of Meal</label>
+        <select name="type_of_meal" required>
+            <option value=" " disabled selected></option>
+            <option value="meal plan 1">Meal Plan 1</option>
+            <option value="meal plan 2">Meal Plan 2</option>
+            <option value="meal plan 3">Meal Plan 3</option>
+            <option value="No Meal">No Meal</option>
+        </select><br>
+
+        <label>Room Type</label>
+        <select name="room_type" required>
+            <option value=" " disabled selected></option>
+            <option value="room_type_1">Room Type 1</option>
+            <option value="room_type_2">Room Type 2</option>
+            <option value="room_type_3">Room Type 3</option>
+            <option value="room_type_4">Room Type 4</option>
+            <option value="room_type_5">Room Type 5</option>
+            <option value="room_type_6">Room Type 6</option>
+            <option value="room_type_7">Room Type 7</option>
+        </select><br>
+
+        <label>Market Segment Type</label>
+        <select name="market_segment_type" required>
+            <option value=" " disabled selected></option>
+            <option value="Aviation">Aviation</option>
+            <option value="Complementary">Complementary</option>
+            <option value="Corporate">Corporate</option>
+            <option value="Offline">Offline</option>
+            <option value="Online">Online</option>
+        </select><br>
+
+        <label>Lead Time</label>
+        <input type="number" name="lead_time" required><br>
+
+        <label>Average Price</label>
+        <input type="number" name="average_price" required><br>
+
+        <label>Special Request</label>
+        <select name="special_request" required>
+            <option value=" " disabled selected></option>
+            <option value="1">1</option>
+            <option value="0">0</option>
+        </select><br>
+
+        <label>Reservation Day:</label>
+        <input type="number" name="reservation_day" required><br>
+
+
+        <label>Reservation Month</label>
+        <input type="number" name="reservation_month" required><br>
+
+        <label>Reservation Year</label>
+        <input type="number" name="reservation_year" required><br>
+
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if prediction_text %}
+    <h3 style="color:rgb(124, 81, 16); text-align:center;">{{ prediction_text }}</h3>
+    {% endif %}
+
+</body>
+</html>
