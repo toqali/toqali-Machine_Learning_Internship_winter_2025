@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Booking Prediction</title>
+    <script>
+        async function predict() {
+            let formData = {
+                "type_of_meal": document.getElementById("meal").value,
+                "room_type": document.getElementById("room").value,
+                "market_segment_type": document.getElementById("market").value,
+                "average_price": document.getElementById("average_price").value,
+                "lead_time": document.getElementById("lead_time").value
+            };
+
+            console.log("Sending form data:", formData);  // Debugging: Log data being sent
+
+            try {
+                let response = await fetch("/predict", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: new URLSearchParams(formData)
+                });
+
+                let result = await response.json();
+                console.log("Received response:", result);  // Debugging: Log the response
+
+                if (result.error) {
+                    document.getElementById("result").innerText = "Error: " + result.error;
+                } else {
+                    document.getElementById("result").innerText = "Prediction: " + result.prediction;
+                }
+            } catch (error) {
+                console.error("Error:", error);  // Debugging: Log any errors
+                document.getElementById("result").innerText = "Error: Failed to get prediction.";
+            }
+        }
+    </script>
+</head>
+<body>
+    <h2>Booking Status Prediction</h2>
+    <label>Meal Type:</label>
+    <select id="meal">
+        <option value="Meal Plan 1">Meal Plan 1</option>
+        <option value="Meal Plan 2">Meal Plan 2</option>
+        <option value="Not Selected">Not Selected</option>
+    </select><br><br>
+
+    <label>Room Type:</label>
+    <select id="room">
+        <option value="Room_Type 1">Room Type 1</option>
+        <option value="Room_Type 2">Room Type 2</option>
+        <option value="Room_Type 3">Room Type 3</option>
+    </select><br><br>
+
+    <label>Market Segment Type:</label>
+    <select id="market">
+        <option value="Online">Online</option>
+        <option value="Offline">Offline</option>
+        <option value="Corporate">Corporate</option>
+    </select><br><br>
+
+    <label>Average Price:</label>
+    <input type="number" id="average_price" value="0"><br><br>
+
+    <label>Lead Time:</label>
+    <input type="number" id="lead_time" value="0"><br><br>
+
+    <button onclick="predict()">Predict</button>
+    <p id="result"></p>  <!-- This will display the result -->
+</body>
+</html>
