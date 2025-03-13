@@ -19,8 +19,8 @@ This project involves predicting taxi fares using a machine learning model and p
 
 1. **Clone the repository**:
     ```bash
-    git clone <repository_url>
-    cd <repository_directory>
+    git clone <https://github.com/toqali/toqali-Machine_Learning_Internship_winter_2025/tree/Internship_1/Task6/FareSpot_OmarMamon>
+    cd <FareSpot_OmarMamon>
     ```
 
 2. **Install dependencies**:
@@ -67,5 +67,4 @@ Contributions are welcome! Please fork the repository and submit a pull request.
 This project is licensed under the MIT License.
 
 ## Contact
-
-For any inquiries, please contact [your_email@example.com].
+For any inquiries, please contact [here](mailto:omar.mamon203@gmail.com).
