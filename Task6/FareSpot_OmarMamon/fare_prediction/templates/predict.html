@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Predict Your Fare | FareSpot</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <style>
+    :root {
+      --primary: #6366F1;
+      --primary-dark: #4F46E5;
+      --primary-light: #A5B4FC;
+      --secondary: #EC4899;
+      --accent: #8B5CF6;
+      --background: #F9FAFB;
+      --foreground: #111827;
+      --card: #FFFFFF;
+      --card-foreground: #111827;
+      --border: #E5E7EB;
+      --input: #E5E7EB;
+      --ring: #6366F1;
+      --radius: 0.5rem;
+      --success: #10B981;
+      --error: #EF4444;
+      --warning: #F59E0B;
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--foreground);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Header Styles */
+    header {
+      background: linear-gradient(to right, var(--primary-dark), var(--accent));
+      color: white;
+      padding: 1.5rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header-pattern {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.5;
+      z-index: 0;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+    }
+
+    .logo span {
+      color: var(--secondary);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .nav-link {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.3s ease;
+    }
+
+    .nav-link:hover {
+      opacity: 0.8;
+    }
+
+    /* Page Title */
+    .page-title {
+      text-align: center;
+      padding: 3rem 0 2rem;
+    }
+
+    .page-title h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, var(--primary-dark), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .page-title p {
+      color: #6B7280;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Form Styles */
+    .form-container {
+      max-width: 1000px;
+      margin: 0 auto 4rem;
+    }
+
+    .form-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .form-header {
+      background: linear-gradient(to right, var(--primary-dark), var(--accent));
+      color: white;
+      padding: 1.5rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .form-header-pattern {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.5;
+      z-index: 0;
+    }
+
+    .form-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .form-body {
+      padding: 2rem;
+    }
+
+    .form-progress {
+      margin-bottom: 2.5rem;
+    }
+
+    .progress-steps {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .progress-steps::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--border);
+      transform: translateY(-50%);
+      z-index: 0;
+    }
+
+    .progress-step {
+      position: relative;
+      z-index: 1;
+      background-color: var(--card);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      border: 2px solid var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .progress-step.active {
+      background-color: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .progress-step.completed {
+      background-color: var(--success);
+      color: white;
+      border-color: var(--success);
+    }
+
+    .progress-label {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      white-space: nowrap;
+      color: #6B7280;
+    }
+
+    .progress-step.active .progress-label {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .form-section {
+      display: none;
+    }
+
+    .form-section.active {
+      display: block;
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .form-section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+      min-width: 250px;
+      margin-bottom: 0;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--foreground);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: 1px solid var(--input);
+      border-radius: var(--radius);
+      background-color: var(--card);
+      color: var(--foreground);
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .form-control::placeholder {
+      color: #9CA3AF;
+    }
+
+    .form-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1rem;
+      padding-right: 2.5rem;
+    }
+
+    .weather-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: space-between;
+    }
+
+    .weather-option {
+      position: relative;
+    }
+
+    .weather-option input {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .weather-option label {
+      width: 110px;
+      height: 110px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      background-color: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .weather-option label:hover {
+      border-color: var(--primary-light);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .weather-option input:checked + label {
+      background-color: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .weather-icon {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 1.25rem;
+      height: 1.25rem;
+      border: 1px solid var(--input);
+      border-radius: 0.25rem;
+      appearance: none;
+      background-color: var(--card);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .checkbox-item input[type="checkbox"]:checked {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .checkbox-item input[type="checkbox"]:checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 0.75rem;
+    }
+
+    .checkbox-item label {
+      cursor: pointer;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    .btn-disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-disabled:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    .map-container {
+      width: 100%;
+      height: 350px;
+      background-color: #E5E7EB;
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .location-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .location-input {
+      position: relative;
+    }
+
+    .location-icon {
+      position: absolute;
+      top: 50%;
+      left: 1rem;
+      transform: translateY(-50%);
+      color: #6B7280;
+      z-index: 1;
+    }
+
+    .location-input .form-control {
+      padding-left: 2.5rem;
+    }
+
+    .ride-info {
+      background-color: #F3F4F6;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      border: 1px dashed #D1D5DB;
+    }
+
+    .ride-info-title {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .ride-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .ride-info-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ride-info-label {
+      font-size: 0.875rem;
+      color: #6B7280;
+      margin-bottom: 0.25rem;
+    }
+
+    .ride-info-value {
+      font-weight: 500;
+    }
+
+    .form-note {
+      font-size: 0.875rem;
+      color: #6B7280;
+      margin-top: 0.5rem;
+    }
+
+    .form-error {
+      color: var(--error);
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Animations */
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .slide-in-right {
+      animation: slideInRight 0.5s ease forwards;
+    }
+
+    .slide-in-left {
+      animation: slideInLeft 0.5s ease forwards;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--foreground);
+      color: white;
+      padding: 2rem 0;
+      text-align: center;
+    }
+
+    .footer-content {
+      opacity: 0.8;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .location-inputs {
+        grid-template-columns: 1fr;
+      }
+      
+      .weather-options {
+        justify-content: center;
+      }
+      
+      .progress-label {
+        display: none;
+      }
+    }
+
+    /* Flatpickr customization */
+    .flatpickr-calendar {
+      border-radius: var(--radius);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+    }
+
+    .flatpickr-day.selected {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .flatpickr-day.selected:hover {
+      background: var(--primary-dark);
+      border-color: var(--primary-dark);
+    }
+
+    .flatpickr-time .numInputWrapper span.arrowUp:after {
+      border-bottom-color: var(--primary);
+    }
+
+    .flatpickr-time .numInputWrapper span.arrowDown:after {
+      border-top-color: var(--primary);
+    }
+
+    /* Distance fields styling */
+    .distance-fields {
+      background-color: #F3F4F6;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      border: 1px solid var(--border);
+    }
+
+    .distance-title {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .distance-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    /* Map marker styles */
+    .map-marker-pickup {
+      color: var(--success);
+      font-size: 2rem;
+    }
+
+    .map-marker-dropoff {
+      color: var(--error);
+      font-size: 2rem;
+    }
+
+    /* Coordinate input group */
+    .coordinate-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .coordinate-group .form-control {
+      flex: 1;
+    }
+
+    /* Error display */
+    .error-container {
+      background-color: #FEF2F2;
+      border: 1px solid var(--error);
+      border-radius: var(--radius);
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      color: var(--error);
+    }
+
+    /* Improved input styling */
+    .input-with-icon {
+      position: relative;
+    }
+
+    .input-with-icon .form-control {
+      padding-left: 2.5rem;
+    }
+
+    .input-with-icon .input-icon {
+      position: absolute;
+      top: 50%;
+      left: 1rem;
+      transform: translateY(-50%);
+      color: #6B7280;
+    }
+
+    /* Improved section spacing */
+    .section-divider {
+      margin: 2rem 0;
+      border-top: 1px dashed var(--border);
+    }
+
+    /* Card styling */
+    .user-card {
+      background-color: var(--card);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .user-card-title {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--primary-dark);
+    }
+
+    /* Toast notification styling */
+    .toastify {
+      padding: 12px 20px;
+      color: white;
+      display: inline-block;
+      box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.12), 0 10px 36px -4px rgba(0, 0, 0, 0.3);
+      background: linear-gradient(to right, var(--primary-dark), var(--accent));
+      border-radius: var(--radius);
+    }
+
+    /* Form validation styling */
+    .form-control.is-invalid {
+      border-color: var(--error);
+    }
+
+    .validation-message {
+      display: none;
+      color: var(--error);
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+    }
+
+    .validation-message.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    /* Progress indicator */
+    .progress-indicator {
+      height: 4px;
+      background-color: var(--border);
+      border-radius: 2px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      width: 0;
+      transition: width 0.3s ease;
+    }
+
+    /* Time restriction notice */
+    .time-restriction {
+      background-color: #EFF6FF;
+      border: 1px solid #BFDBFE;
+      border-radius: var(--radius);
+      padding: 0.75rem;
+      margin-top: 0.5rem;
+      color: #1E40AF;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .time-restriction i {
+      color: #3B82F6;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-pattern"></div>
+    <div class="container header-content">
+      <a href="/" class="logo">Ride<span>Fare</span></a>
+      <div class="nav-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/predict" class="nav-link">Predict</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-title">
+    <div class="container">
+      <h1>Predict Your Taxi Fare</h1>
+      <p>Fill in the details below to get an accurate fare estimate for your ride</p>
+    </div>
+  </div>
+
+  <div class="container form-container">
+    {% if error %}
+    <div class="error-container">
+      <h3><i class="fas fa-exclamation-triangle"></i> Error</h3>
+      <p>{{ error }}</p>
+    </div>
+    {% endif %}
+    
+    <div class="form-card">
+      <div class="form-header">
+        <div class="form-header-pattern"></div>
+        <h2><i class="fas fa-calculator"></i> Fare Prediction Form</h2>
+      </div>
+      <div class="form-body">
+        <div class="form-progress">
+          <div class="progress-steps">
+            <div class="progress-step active" id="step1">
+              1
+              <span class="progress-label">User Info</span>
+            </div>
+            <div class="progress-step" id="step2">
+              2
+              <span class="progress-label">Ride Details</span>
+            </div>
+            <div class="progress-step" id="step3">
+              3
+              <span class="progress-label">Conditions</span>
+            </div>
+            <div class="progress-step" id="step4">
+              4
+              <span class="progress-label">Distances</span>
+            </div>
+            <div class="progress-step" id="step5">
+              5
+              <span class="progress-label">Review</span>
+            </div>
+          </div>
+        </div>
+
+        <form method="post" action="{% url 'predict' %}" id="prediction-form">
+          {% csrf_token %}
+
+          <!-- Section 1: User Information -->
+          <div class="form-section active" id="section1">
+            <h3 class="form-section-title"><i class="fas fa-user"></i> User Information</h3>
+            
+            <div class="user-card">
+              <h4 class="user-card-title"><i class="fas fa-user-circle"></i> Customer Details</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="user_id" class="form-label">User ID</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-id-card input-icon"></i>
+                    <input type="text" id="user_id" name="user_id" class="form-control" placeholder="Enter your user ID" required value="{{ form_data.user_id|default:'' }}">
+                  </div>
+                  <div class="validation-message" id="user_id-validation">Please enter a valid user ID</div>
+                </div>
+                <div class="form-group">
+                  <label for="user_name" class="form-label">Full Name</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-user input-icon"></i>
+                    <input type="text" id="user_name" name="user_name" class="form-control" placeholder="Enter your full name" required value="{{ form_data.user_name|default:'' }}">
+                  </div>
+                  <div class="validation-message" id="user_name-validation">Please enter your full name</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="user-card">
+              <h4 class="user-card-title"><i class="fas fa-user-tie"></i> Driver & Ride Details</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="driver_name" class="form-label">Driver Name</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-user-tie input-icon"></i>
+                    <input type="text" id="driver_name" name="driver_name" class="form-control" placeholder="Enter driver name" required value="{{ form_data.driver_name|default:'' }}">
+                  </div>
+                  <div class="validation-message" id="driver_name-validation">Please enter the driver's name</div>
+                </div>
+                <div class="form-group">
+                  <label for="ride_id" class="form-label">Ride ID</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-ticket-alt input-icon"></i>
+                    <input type="text" id="ride_id" name="ride_id" class="form-control" placeholder="Enter ride ID (optional)" value="{{ form_data.ride_id|default:'' }}">
+                  </div>
+                  <p class="form-note">Leave blank to auto-generate</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <div class="progress-indicator">
+                <div class="progress-bar" style="width: 20%"></div>
+              </div>
+              <div></div> <!-- Empty div for flex spacing -->
+              <button type="button" class="btn btn-primary" id="next1">
+                Next Step <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Section 2: Ride Details -->
+          <div class="form-section" id="section2">
+            <h3 class="form-section-title"><i class="fas fa-route"></i> Ride Details</h3>
+            
+            <div class="map-container">
+              <div id="map"></div>
+            </div>
+            
+            <div class="location-inputs">
+              <div class="location-input">
+                <label for="pickup_location" class="form-label">Pickup Location</label>
+                <div class="input-with-icon">
+                  <i class="fas fa-map-marker-alt input-icon"></i>
+                  <input type="text" id="pickup_location" name="pickup_location" class="form-control" placeholder="Enter pickup location" required value="{{ form_data.pickup_location|default:'' }}">
+                </div>
+                <div class="validation-message" id="pickup_location-validation">Please enter a pickup location</div>
+              </div>
+              <div class="location-input">
+                <label for="destination" class="form-label">Destination</label>
+                <div class="input-with-icon">
+                  <i class="fas fa-flag-checkered input-icon"></i>
+                  <input type="text" id="destination" name="destination" class="form-control" placeholder="Enter destination" required value="{{ form_data.destination|default:'' }}">
+                </div>
+                <div class="validation-message" id="destination-validation">Please enter a destination</div>
+              </div>
+            </div>
+            
+            <div class="user-card">
+              <h4 class="user-card-title"><i class="fas fa-map-marked-alt"></i> Coordinates</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="pickup_lat" class="form-label">Pickup Latitude</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-location-arrow input-icon"></i>
+                    <input type="number" id="pickup_lat" name="pickup_lat" class="form-control" step="0.000001" placeholder="e.g. 40.7128" required value="{{ form_data.pickup_lat|default:'' }}">
+                  </div>
+                  <div class="validation-message" id="pickup_lat-validation">Please enter a valid latitude</div>
+                </div>
+                <div class="form-group">
+                  <label for="pickup_lon" class="form-label">Pickup Longitude</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-location-arrow input-icon"></i>
+                    <input type="number" id="pickup_lon" name="pickup_lon" class="form-control" step="0.000001" placeholder="e.g. -74.0060" required value="{{ form_data.pickup_lon|default:'' }}">
+                  </div>
+                  <div class="validation-message" id="pickup_lon-validation">Please enter a valid longitude</div>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="dropoff_lat" class="form-label">Dropoff Latitude</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-location-arrow input-icon"></i>
+                    <input type="number" id="dropoff_lat" name="dropoff_lat" class="form-control" step="0.000001" placeholder="e.g. 40.7580" required value="{{ form_data.dropoff_lat|default:'' }}">
+                  </div>
+                  <div class="validation-message" id="dropoff_lat-validation">Please enter a valid latitude</div>
+                </div>
+                <div class="form-group">
+                  <label for="dropoff_lon" class="form-label">Dropoff Longitude</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-location-arrow input-icon"></i>
+                    <input type="number" id="dropoff_lon" name="dropoff_lon" class="form-control" step="0.000001" placeholder="e.g. -73.9855" required value="{{ form_data.dropoff_lon|default:'' }}">
+                  </div>
+                  <div class="validation-message" id="dropoff_lon-validation">Please enter a valid longitude</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="user-card">
+              <h4 class="user-card-title"><i class="fas fa-info-circle"></i> Ride Information</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="ride_distance" class="form-label">Ride Distance (miles)</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-ruler input-icon"></i>
+                    <input type="number" id="ride_distance" name="ride_distance" class="form-control" min="0" step="0.1" placeholder="0.0" required value="{{ form_data.ride_distance|default:'' }}">
+                  </div>
+                  <div class="validation-message" id="ride_distance-validation">Please enter a valid distance</div>
+                </div>
+                <div class="form-group">
+                  <label for="ride_bearing" class="form-label">Ride Bearing (degrees)</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-compass input-icon"></i>
+                    <input type="number" id="ride_bearing" name="ride_bearing" class="form-control" min="0" max="360" step="0.1" placeholder="0.0" required value="{{ form_data.ride_bearing|default:'' }}">
+                  </div>
+                  <p class="form-note">Direction in degrees (0-360)</p>
+                  <div class="validation-message" id="ride_bearing-validation">Please enter a valid bearing (0-360)</div>
+                </div>
+                <div class="form-group">
+                  <label for="passenger_count" class="form-label">Passenger Count</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-users input-icon"></i>
+                    <select id="passenger_count" name="passenger_count" class="form-control form-select" required>
+                      <option value="">Select passenger count</option>
+                      <option value="1" {% if form_data.passenger_count == '1' %}selected{% endif %}>1 passenger</option>
+                      <option value="2" {% if form_data.passenger_count == '2' %}selected{% endif %}>2 passengers</option>
+                      <option value="3" {% if form_data.passenger_count == '3' %}selected{% endif %}>3 passengers</option>
+                      <option value="4" {% if form_data.passenger_count == '4' %}selected{% endif %}>4 passengers</option>
+                      <option value="5" {% if form_data.passenger_count == '5' %}selected{% endif %}>5 passengers</option>
+                      <option value="6" {% if form_data.passenger_count == '6' %}selected{% endif %}>6+ passengers</option>
+                    </select>
+                  </div>
+                  <div class="validation-message" id="passenger_count-validation">Please select the number of passengers</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <div class="progress-indicator">
+                <div class="progress-bar" style="width: 40%"></div>
+              </div>
+              <button type="button" class="btn btn-outline" id="prev2" style="margin-right: auto;">
+                <i class="fas fa-arrow-left"></i> Previous
+              </button>
+              <button type="button" class="btn btn-primary" id="next2">
+                Next Step <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Section 3: Conditions & Time -->
+          <div class="form-section" id="section3">
+            <h3 class="form-section-title"><i class="fas fa-cloud-sun-rain"></i> Ride Conditions</h3>
+            
+            <div class="user-card">
+              <h4 class="user-card-title"><i class="fas fa-cloud"></i> Weather & Traffic</h4>
+              <label class="form-label">Weather Condition</label>
+              <div class="weather-options">
+                <div class="weather-option">
+                  <input type="radio" name="weather" id="weather_sunny" value="sunny" {% if form_data.weather == 'sunny' or not form_data.weather %}checked{% endif %}>
+                  <label for="weather_sunny">
+                    <i class="fas fa-sun weather-icon"></i>
+                    Sunny
+                  </label>
+                </div>
+                <div class="weather-option">
+                  <input type="radio" name="weather" id="weather_cloudy" value="cloudy" {% if form_data.weather == 'cloudy' %}checked{% endif %}>
+                  <label for="weather_cloudy">
+                    <i class="fas fa-cloud weather-icon"></i>
+                    Cloudy
+                  </label>
+                </div>
+                <div class="weather-option">
+                  <input type="radio" name="weather" id="weather_rainy" value="rainy" {% if form_data.weather == 'rainy' %}checked{% endif %}>
+                  <label for="weather_rainy">
+                    <i class="fas fa-cloud-rain weather-icon"></i>
+                    Rainy
+                  </label>
+                </div>
+                <div class="weather-option">
+                  <input type="radio" name="weather" id="weather_stormy" value="stormy" {% if form_data.weather == 'stormy' %}checked{% endif %}>
+                  <label for="weather_stormy">
+                    <i class="fas fa-bolt weather-icon"></i>
+                    Stormy
+                  </label>
+                </div>
+                <div class="weather-option">
+                  <input type="radio" name="weather" id="weather_windy" value="windy" {% if form_data.weather == 'windy' %}checked{% endif %}>
+                  <label for="weather_windy">
+                    <i class="fas fa-wind weather-icon"></i>
+                    Windy
+                  </label>
+                </div>
+              </div>
+              
+              <div class="form-row" style="margin-top: 1.5rem;">
+                <div class="form-group">
+                  <label for="traffic" class="form-label">Traffic Condition</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-traffic-light input-icon"></i>
+                    <select id="traffic" name="traffic" class="form-control form-select" required>
+                      <option value="">Select traffic condition</option>
+                      <option value="light" {% if form_data.traffic == 'light' %}selected{% endif %}>Light (Flowing)</option>
+                      <option value="moderate" {% if form_data.traffic == 'moderate' %}selected{% endif %}>Moderate (Some delays)</option>
+                      <option value="heavy" {% if form_data.traffic == 'heavy' %}selected{% endif %}>Heavy (Congested)</option>
+                    </select>
+                  </div>
+                  <div class="validation-message" id="traffic-validation">Please select a traffic condition</div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="car_condition" class="form-label">Car Condition</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-car input-icon"></i>
+                    <select id="car_condition" name="car_condition" class="form-control form-select" required>
+                      <option value="">Select car condition</option>
+                      <option value="excellent" {% if form_data.car_condition == 'excellent' %}selected{% endif %}>Excellent</option>
+                      <option value="good" {% if form_data.car_condition == 'good' %}selected{% endif %}>Good</option>
+                      <option value="fair" {% if form_data.car_condition == 'fair' %}selected{% endif %}>Fair</option>
+                      <option value="poor" {% if form_data.car_condition == 'poor' %}selected{% endif %}>Poor</option>
+                    </select>
+                  </div>
+                  <div class="validation-message" id="car_condition-validation">Please select the car condition</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="user-card">
+              <h4 class="user-card-title"><i class="fas fa-calendar-alt"></i> Date & Time</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="request_datetime" class="form-label">Reservation Date & Time</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-calendar-alt input-icon"></i>
+                    <input type="text" id="request_datetime" class="form-control" placeholder="Select date and time" required>
+                  </div>
+                  <p class="form-note">This sets the request date and time</p>
+                  <div class="validation-message" id="request_datetime-validation">Please select a reservation date and time</div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="pickup_time" class="form-label">Pickup Time</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-clock input-icon"></i>
+                    <input type="text" id="pickup_time" name="pickup_time" class="form-control" placeholder="Select pickup time" required value="{{ form_data.pickup_time|default:'' }}">
+                  </div>
+                  <div class="time-restriction">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Pickup time must be after reservation time and within 1 hour</span>
+                  </div>
+                  <div class="validation-message" id="pickup_time-validation">Please select a valid pickup time</div>
+                </div>
+              </div>
+              
+              <!-- Hidden fields for date components -->
+              <input type="hidden" id="request_year" name="request_year">
+              <input type="hidden" id="request_month" name="request_month">
+              <input type="hidden" id="request_day" name="request_day">
+              <input type="hidden" id="request_hour" name="request_hour">
+              <input type="hidden" id="request_weekday" name="request_weekday">
+            </div>
+            
+            <div class="form-actions">
+              <div class="progress-indicator">
+                <div class="progress-bar" style="width: 60%"></div>
+              </div>
+              <button type="button" class="btn btn-outline" id="prev3" style="margin-right: auto;">
+                <i class="fas fa-arrow-left"></i> Previous
+              </button>
+              <button type="button" class="btn btn-primary" id="next3">
+                Next Step <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Section 4: Distances -->
+          <div class="form-section" id="section4">
+            <h3 class="form-section-title"><i class="fas fa-ruler"></i> Distance Measurements</h3>
+            
+            <div class="distance-fields">
+              <h4 class="distance-title"><i class="fas fa-landmark"></i> Distances to Key Locations</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="distance_jfk" class="form-label">Distance to JFK Airport (miles)</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-plane input-icon"></i>
+                    <input type="number" id="distance_jfk" name="distance_jfk" class="form-control" min="0" step="0.1" placeholder="0.0" required value="{{ form_data.distance_jfk|default:'' }}">
+                  </div>
+                  <div class="validation-message" id="distance_jfk-validation">Please enter a valid distance</div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="distance_ewr" class="form-label">Distance to Newark Airport (miles)</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-plane input-icon"></i>
+                    <input type="number" id="distance_ewr" name="distance_ewr" class="form-control" min="0" step="0.1" placeholder="0.0" required value="{{ form_data.distance_ewr|default:'' }}">
+                  </div>
+                  <div class="validation-message" id="distance_ewr-validation">Please enter a valid distance</div>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="distance_lga" class="form-label">Distance to LaGuardia Airport (miles)</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-plane input-icon"></i>
+                    <input type="number" id="distance_lga" name="distance_lga" class="form-control" min="0" step="0.1" placeholder="0.0" required value="{{ form_data.distance_lga|default:'' }}">
+                  </div>
+                  <div class="validation-message" id="distance_lga-validation">Please enter a valid distance</div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="distance_sol" class="form-label">Distance to Statue of Liberty (miles)</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-monument input-icon"></i>
+                    <input type="number" id="distance_sol" name="distance_sol" class="form-control" min="0" step="0.1" placeholder="0.0" required value="{{ form_data.distance_sol|default:'' }}">
+                  </div>
+                  <div class="validation-message" id="distance_sol-validation">Please enter a valid distance</div>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="distance_nyc" class="form-label">Distance to NYC Center (miles)</label>
+                  <div class="input-with-icon">
+                    <i class="fas fa-city input-icon"></i>
+                    <input type="number" id="distance_nyc" name="distance_nyc" class="form-control" min="0" step="0.1" placeholder="0.0" required value="{{ form_data.distance_nyc|default:'' }}">
+                  </div>
+                  <div class="validation-message" id="distance_nyc-validation">Please enter a valid distance</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <div class="progress-indicator">
+                <div class="progress-bar" style="width: 80%"></div>
+              </div>
+              <button type="button" class="btn btn-outline" id="prev4" style="margin-right: auto;">
+                <i class="fas fa-arrow-left"></i> Previous
+              </button>
+              <button type="button" class="btn btn-primary" id="next4">
+                Next Step <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Section 5: Review -->
+          <div class="form-section" id="section5">
+            <h3 class="form-section-title"><i class="fas fa-check-circle"></i> Review Your Information</h3>
+            
+            <div class="ride-info">
+              <h4 class="ride-info-title"><i class="fas fa-user"></i> User Information</h4>
+              <div class="ride-info-grid">
+                <div class="ride-info-item">
+                  <span class="ride-info-label">User ID</span>
+                  <span class="ride-info-value" id="review-user-id">-</span>
+                </div>
+                <div class="ride-info-item">
+                  <span class="ride-info-label">User Name</span>
+                  <span class="ride-info-value" id="review-user-name">-</span>
+                </div>
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Driver Name</span>
+                  <span class="ride-info-value" id="review-driver-name">-</span>
+                </div>
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Ride ID</span>
+                  <span class="ride-info-value" id="review-ride-id">-</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="ride-info" style="margin-top: 1rem;">
+              <h4 class="ride-info-title"><i class="fas fa-route"></i> Ride Details</h4>
+              <div class="ride-info-grid">
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Pickup Location</span>
+                  <span class="ride-info-value" id="review-pickup">-</span>
+                </div>
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Destination</span>
+                  <span class="ride-info-value" id="review-destination">-</span>
+                </div>
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Distance</span>
+                  <span class="ride-info-value" id="review-distance">-</span>
+                </div>
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Passengers</span>
+                  <span class="ride-info-value" id="review-passengers">-</span>
+                </div>
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Pickup Coordinates</span>
+                  <span class="ride-info-value" id="review-pickup-coords">-</span>
+                </div>
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Dropoff Coordinates</span>
+                  <span class="ride-info-value" id="review-dropoff-coords">-</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="ride-info" style="margin-top: 1rem;">
+              <h4 class="ride-info-title"><i class="fas fa-cloud-sun-rain"></i> Conditions</h4>
+              <div class="ride-info-grid">
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Weather</span>
+                  <span class="ride-info-value" id="review-weather">-</span>
+                </div>
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Traffic</span>
+                  <span class="ride-info-value" id="review-traffic">-</span>
+                </div>
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Car Condition</span>
+                  <span class="ride-info-value" id="review-car">-</span>
+                </div>
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Reservation Time</span>
+                  <span class="ride-info-value" id="review-request-time">-</span>
+                </div>
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Pickup Time</span>
+                  <span class="ride-info-value" id="review-pickup-time">-</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="ride-info" style="margin-top: 1rem;">
+              <h4 class="ride-info-title"><i class="fas fa-ruler"></i> Distance Measurements</h4>
+              <div class="ride-info-grid">
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Distance to JFK</span>
+                  <span class="ride-info-value" id="review-jfk">-</span>
+                </div>
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Distance to Newark</span>
+                  <span class="ride-info-value" id="review-ewr">-</span>
+                </div>
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Distance to LaGuardia</span>
+                  <span class="ride-info-value" id="review-lga">-</span>
+                </div>
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Distance to Statue of Liberty</span>
+                  <span class="ride-info-value" id="review-sol">-</span>
+                </div>
+                <div class="ride-info-item">
+                  <span class="ride-info-label">Distance to NYC Center</span>
+                  <span class="ride-info-value" id="review-nyc">-</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <div class="progress-indicator">
+                <div class="progress-bar" style="width: 100%"></div>
+              </div>
+              <button type="button" class="btn btn-outline" id="prev5" style="margin-right: auto;">
+                <i class="fas fa-arrow-left"></i> Previous
+              </button>
+              <button type="submit" class="btn btn-primary" id="submit-btn">
+                <i class="fas fa-calculator"></i> Calculate Fare
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <p>&copy; 2025 RideFare. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Form navigation
+      const sections = document.querySelectorAll('.form-section');
+      const steps = document.querySelectorAll('.progress-step');
+      
+      // Initialize map
+      const map = L.map('map').setView([40.7128, -74.0060], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+      
+      // Markers for pickup and dropoff
+      let pickupMarker = null;
+      let dropoffMarker = null;
+      let routeLine = null;
+      
+      // Custom icons for markers
+      const pickupIcon = L.divIcon({
+        html: '<i class="fas fa-map-marker-alt map-marker-pickup"></i>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 30],
+        className: 'pickup-marker-icon'
+      });
+      
+      const dropoffIcon = L.divIcon({
+        html: '<i class="fas fa-flag-checkered map-marker-dropoff"></i>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 30],
+        className: 'dropoff-marker-icon'
+      });
+      
+      // Update map with markers
+      function updateMap() {
+        const pickupLat = parseFloat(document.getElementById('pickup_lat').value);
+        const pickupLon = parseFloat(document.getElementById('pickup_lon').value);
+        const dropoffLat = parseFloat(document.getElementById('dropoff_lat').value);
+        const dropoffLon = parseFloat(document.getElementById('dropoff_lon').value);
+        
+        // Clear existing markers
+        if (pickupMarker) map.removeLayer(pickupMarker);
+        if (dropoffMarker) map.removeLayer(dropoffMarker);
+        if (routeLine) map.removeLayer(routeLine);
+        
+        // Add new markers if coordinates are valid
+        if (!isNaN(pickupLat) && !isNaN(pickupLon)) {
+          pickupMarker = L.marker([pickupLat, pickupLon], {icon: pickupIcon}).addTo(map);
+          pickupMarker.bindPopup('Pickup Location').openPopup();
+        }
+        
+        if (!isNaN(dropoffLat) && !isNaN(dropoffLon)) {
+          dropoffMarker = L.marker([dropoffLat, dropoffLon], {icon: dropoffIcon}).addTo(map);
+          dropoffMarker.bindPopup('Dropoff Location');
+        }
+        
+        // Draw route line if both markers exist
+        if (!isNaN(pickupLat) && !isNaN(pickupLon) && !isNaN(dropoffLat) && !isNaN(dropoffLon)) {
+          routeLine = L.polyline([
+            [pickupLat, pickupLon],
+            [dropoffLat, dropoffLon]
+          ], {color: 'var(--primary)', weight: 3, opacity: 0.7, dashArray: '10, 10'}).addTo(map);
+          
+          // Fit map to show both markers
+          const bounds = L.latLngBounds([
+            [pickupLat, pickupLon],
+            [dropoffLat, dropoffLon]
+          ]);
+          map.fitBounds(bounds, {padding: [50, 50]});
+        }
+      }
+      
+      // Initialize flatpickr for date/time pickers
+      const now = new Date();
+      const requestDatetime = flatpickr("#request_datetime", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        minuteIncrement: 1,
+        time_24hr: true,
+        defaultDate: now,
+        onChange: function(selectedDates, dateStr) {
+          // Update hidden date fields
+          const selectedDate = selectedDates[0];
+          document.getElementById('request_year').value = selectedDate.getFullYear();
+          document.getElementById('request_month').value = selectedDate.getMonth() + 1;
+          document.getElementById('request_day').value = selectedDate.getDate();
+          document.getElementById('request_hour').value = selectedDate.getHours();
+          document.getElementById('request_weekday').value = selectedDate.getDay();
+          
+          // Update pickup time constraints
+          const minTime = new Date(selectedDate);
+          const maxTime = new Date(selectedDate);
+          maxTime.setHours(maxTime.getHours() + 1);
+          
+          // Reinitialize pickup time with new constraints
+          if (pickupTimePicker) {
+            pickupTimePicker.destroy();
+          }
+          
+          pickupTimePicker = flatpickr("#pickup_time", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            time_24hr: true,
+            minuteIncrement: 1,
+            minTime: minTime.getHours() + ":" + minTime.getMinutes(),
+            maxTime: maxTime.getHours() + ":" + maxTime.getMinutes(),
+            defaultDate: new Date(selectedDate.getTime() + 15 * 60000) // 15 minutes after request time
+          });
+          
+          // Show notification
+          showToast("Pickup time must be within 1 hour of reservation time", "info");
+        }
+      });
+      
+      // Set default values for hidden date fields
+      document.getElementById('request_year').value = now.getFullYear();
+      document.getElementById('request_month').value = now.getMonth() + 1;
+      document.getElementById('request_day').value = now.getDate();
+      document.getElementById('request_hour').value = now.getHours();
+      document.getElementById('request_weekday').value = now.getDay();
+      
+      // Initialize pickup time picker (will be updated when request time changes)
+      const defaultPickupTime = new Date(now.getTime() + 15 * 60000); // 15 minutes after current time
+      let pickupTimePicker = flatpickr("#pickup_time", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        minuteIncrement: 1,
+        defaultDate: defaultPickupTime,
+        minTime: now.getHours() + ":" + now.getMinutes(),
+        maxTime: (new Date(now.getTime() + 60 * 60000)).getHours() + ":" + (new Date(now.getTime() + 60 * 60000)).getMinutes()
+      });
+      
+      // Show toast notification
+      function showToast(message, type = "success") {
+        const bgColor = type === "success" ? "linear-gradient(to right, var(--success), #34D399)" :
+                        type === "error" ? "linear-gradient(to right, var(--error), #F87171)" :
+                        "linear-gradient(to right, var(--primary), var(--accent))";
+        
+        Toastify({
+          text: message,
+          duration: 3000,
+          gravity: "top",
+          position: "right",
+          style: {
+            background: bgColor,
+            borderRadius: "var(--radius)"
+          }
+        }).showToast();
+      }
+      
+      // Validate field
+      function validateField(field) {
+        const validationMessage = document.getElementById(`${field.id}-validation`);
+        
+        if (field.required && !field.value) {
+          field.classList.add('is-invalid');
+          if (validationMessage) validationMessage.classList.add('show');
+          return false;
+        } else {
+          field.classList.remove('is-invalid');
+          if (validationMessage) validationMessage.classList.remove('show');
+          return true;
+        }
+      }
+      
+      // Next buttons
+      document.getElementById('next1').addEventListener('click', function() {
+        if (validateSection(1)) {
+          showSection(2);
+          showToast("User information saved", "success");
+        } else {
+          showToast("Please fill in all required fields", "error");
+        }
+      });
+      
+      document.getElementById('next2').addEventListener('click', function() {
+        if (validateSection(2)) {
+          showSection(3);
+          showToast("Ride details saved", "success");
+        } else {
+          showToast("Please fill in all required fields", "error");
+        }
+      });
+      
+      document.getElementById('next3').addEventListener('click', function() {
+        if (validateSection(3)) {
+          showSection(4);
+          showToast("Conditions and time saved", "success");
+        } else {
+          showToast("Please fill in all required fields", "error");
+        }
+      });
+      
+      document.getElementById('next4').addEventListener('click', function() {
+        if (validateSection(4)) {
+          updateReviewSection();
+          showSection(5);
+          showToast("All information complete! Please review before submitting", "success");
+        } else {
+          showToast("Please fill in all required fields", "error");
+        }
+      });
+      
+      // Previous buttons
+      document.getElementById('prev2').addEventListener('click', function() {
+        showSection(1);
+      });
+      
+      document.getElementById('prev3').addEventListener('click', function() {
+        showSection(2);
+      });
+      
+      document.getElementById('prev4').addEventListener('click', function() {
+        showSection(3);
+      });
+      
+      document.getElementById('prev5').addEventListener('click', function() {
+        showSection(4);
+      });
+      
+      // Show a specific section
+      function showSection(sectionNumber) {
+        sections.forEach(section => section.classList.remove('active'));
+        document.getElementById(`section${sectionNumber}`).classList.add('active');
+        
+        steps.forEach(step => step.classList.remove('active', 'completed'));
+        
+        // Mark current step as active and previous steps as completed
+        for (let i = 1; i <= 5; i++) {
+          if (i < sectionNumber) {
+            document.getElementById(`step${i}`).classList.add('completed');
+          } else if (i === sectionNumber) {
+            document.getElementById(`step${i}`).classList.add('active');
+          }
+        }
+        
+        // Add animation class
+        if (sectionNumber > 1) {
+          document.getElementById(`section${sectionNumber}`).classList.add('slide-in-right');
+        } else {
+          document.getElementById(`section${sectionNumber}`).classList.add('slide-in-left');
+        }
+        
+        // Remove animation class after animation completes
+        setTimeout(() => {
+          document.getElementById(`section${sectionNumber}`).classList.remove('slide-in-right', 'slide-in-left');
+        }, 500);
+        
+        // Update map when showing section 2
+        if (sectionNumber === 2) {
+          setTimeout(() => {
+            map.invalidateSize();
+            updateMap();
+          }, 100);
+        }
+        
+        // Scroll to top of form
+        document.querySelector('.form-card').scrollIntoView({ behavior: 'smooth' });
+      }
+      
+      // Validate section fields
+      function validateSection(sectionNumber) {
+        const section = document.getElementById(`section${sectionNumber}`);
+        const requiredFields = section.querySelectorAll('[required]');
+        let isValid = true;
+        
+        requiredFields.forEach(field => {
+          if (!validateField(field)) {
+            isValid = false;
+          }
+        });
+        
+        // Special validation for pickup time
+        if (sectionNumber === 3) {
+          const requestTime = document.getElementById('request_datetime').value;
+          const pickupTime = document.getElementById('pickup_time').value;
+          
+          if (requestTime && pickupTime) {
+            const requestDate = new Date(requestTime);
+            const pickupHour = parseInt(pickupTime.split(':')[0]);
+            const pickupMinute = parseInt(pickupTime.split(':')[1]);
+            
+            const pickupDate = new Date(requestDate);
+            pickupDate.setHours(pickupHour, pickupMinute);
+            
+            // Check if pickup time is after request time
+            if (pickupDate <= requestDate) {
+              const field = document.getElementById('pickup_time');
+              field.classList.add('is-invalid');
+              
+              // Add error message
+              const validationMessage = document.getElementById('pickup_time-validation');
+              if (validationMessage) {
+                validationMessage.textContent = 'Pickup time must be after reservation time';
+                validationMessage.classList.add('show');
+              }
+              
+              isValid = false;
+            }
+            
+            // Check if pickup time is within 1 hour of request time
+            const timeDiff = Math.abs(pickupDate - requestDate) / (1000 * 60 * 60); // difference in hours
+            
+            if (timeDiff > 1) {
+              const field = document.getElementById('pickup_time');
+              field.classList.add('is-invalid');
+              
+              // Add error message
+              const validationMessage = document.getElementById('pickup_time-validation');
+              if (validationMessage) {
+                validationMessage.textContent = 'Pickup time must be within 1 hour of reservation time';
+                validationMessage.classList.add('show');
+              }
+              
+              isValid = false;
+            }
+          }
+        }
+        
+        return isValid;
+      }
+      
+      // Add validation to all required fields
+      document.querySelectorAll('[required]').forEach(field => {
+        field.addEventListener('blur', function() {
+          validateField(this);
+        });
+        
+        field.addEventListener('input', function() {
+          if (this.classList.contains('is-invalid')) {
+            validateField(this);
+          }
+        });
+      });
+      
+      // Update review section with form values
+      function updateReviewSection() {
+        document.getElementById('review-user-id').textContent = document.getElementById('user_id').value;
+        document.getElementById('review-user-name').textContent = document.getElementById('user_name').value;
+        document.getElementById('review-driver-name').textContent = document.getElementById('driver_name').value;
+        document.getElementById('review-ride-id').textContent = document.getElementById('ride_id').value || 'Auto-generated';
+        
+        document.getElementById('review-pickup').textContent = document.getElementById('pickup_location').value;
+        document.getElementById('review-destination').textContent = document.getElementById('destination').value;
+        document.getElementById('review-distance').textContent = `${document.getElementById('ride_distance').value} miles`;
+        
+        const passengerSelect = document.getElementById('passenger_count');
+        document.getElementById('review-passengers').textContent = passengerSelect.options[passengerSelect.selectedIndex].text;
+        
+        document.getElementById('review-pickup-coords').textContent = `(${document.getElementById('pickup_lat').value}, ${document.getElementById('pickup_lon').value})`;
+        document.getElementById('review-dropoff-coords').textContent = `(${document.getElementById('dropoff_lat').value}, ${document.getElementById('dropoff_lon').value})`;
+        
+        // Get selected weather
+        const selectedWeather = document.querySelector('input[name="weather"]:checked');
+        document.getElementById('review-weather').textContent = selectedWeather ? selectedWeather.value.charAt(0).toUpperCase() + selectedWeather.value.slice(1) : '-';
+        
+        // Get traffic and car condition
+        const trafficSelect = document.getElementById('traffic');
+        const carSelect = document.getElementById('car_condition');
+        
+        document.getElementById('review-traffic').textContent = trafficSelect.options[trafficSelect.selectedIndex].text;
+        document.getElementById('review-car').textContent = carSelect.options[carSelect.selectedIndex].text;
+        
+        // Date and time
+        document.getElementById('review-request-time').textContent = document.getElementById('request_datetime').value;
+        document.getElementById('review-pickup-time').textContent = document.getElementById('pickup_time').value;
+        
+        // Distances
+        document.getElementById('review-jfk').textContent = `${document.getElementById('distance_jfk').value} miles`;
+        document.getElementById('review-ewr').textContent = `${document.getElementById('distance_ewr').value} miles`;
+        document.getElementById('review-lga').textContent = `${document.getElementById('distance_lga').value} miles`;
+        document.getElementById('review-sol').textContent = `${document.getElementById('distance_sol').value} miles`;
+        document.getElementById('review-nyc').textContent = `${document.getElementById('distance_nyc').value} miles`;
+      }
+      
+      // Calculate ride bearing when coordinates change
+      function calculateBearing() {
+        const pickupLat = parseFloat(document.getElementById('pickup_lat').value);
+        const pickupLon = parseFloat(document.getElementById('pickup_lon').value);
+        const dropoffLat = parseFloat(document.getElementById('dropoff_lat').value);
+        const dropoffLon = parseFloat(document.getElementById('dropoff_lon').value);
+        
+        if (!isNaN(pickupLat) && !isNaN(pickupLon) && !isNaN(dropoffLat) && !isNaN(dropoffLon)) {
+          // Convert to radians
+          const startLat = pickupLat * Math.PI / 180;
+          const startLng = pickupLon * Math.PI / 180;
+          const destLat = dropoffLat * Math.PI / 180;
+          const destLng = dropoffLon * Math.PI / 180;
+          
+          // Calculate bearing
+          const y = Math.sin(destLng - startLng) * Math.cos(destLat);
+          const x = Math.cos(startLat) * Math.sin(destLat) -
+                  Math.sin(startLat) * Math.cos(destLat) * Math.cos(destLng - startLng);
+          let bearing = Math.atan2(y, x) * 180 / Math.PI;
+          
+          // Normalize to 0-360
+          bearing = (bearing + 360) % 360;
+          
+          document.getElementById('ride_bearing').value = bearing.toFixed(1);
+        }
+      }
+      
+      // Calculate distance when coordinates change
+      function calculateDistance() {
+        const pickupLat = parseFloat(document.getElementById('pickup_lat').value);
+        const pickupLon = parseFloat(document.getElementById('pickup_lon').value);
+        const dropoffLat = parseFloat(document.getElementById('dropoff_lat').value);
+        const dropoffLon = parseFloat(document.getElementById('dropoff_lon').value);
+        
+        if (!isNaN(pickupLat) && !isNaN(pickupLon) && !isNaN(dropoffLat) && !isNaN(dropoffLon)) {
+          // Haversine formula
+          const R = 3958.8; // Earth radius in miles
+          const dLat = (dropoffLat - pickupLat) * Math.PI / 180;
+          const dLon = (dropoffLon - pickupLon) * Math.PI / 180;
+          
+          const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(pickupLat * Math.PI / 180) * Math.cos(dropoffLat * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+          
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+          const distance = R * c;
+          
+          document.getElementById('ride_distance').value = distance.toFixed(1);
+        }
+      }
+      
+      // Add event listeners for coordinate changes
+      document.getElementById('pickup_lat').addEventListener('change', function() {
+        calculateBearing();
+        calculateDistance();
+        updateMap();
+      });
+      
+      document.getElementById('pickup_lon').addEventListener('change', function() {
+        calculateBearing();
+        calculateDistance();
+        updateMap();
+      });
+      
+      document.getElementById('dropoff_lat').addEventListener('change', function() {
+        calculateBearing();
+        calculateDistance();
+        updateMap();
+      });
+      
+      document.getElementById('dropoff_lon').addEventListener('change', function() {
+        calculateBearing();
+        calculateDistance();
+        updateMap();
+      });
+      
+      // Form submission
+      document.getElementById('prediction-form').addEventListener('submit', function(e) {
+        // Final validation before submission
+        let isValid = true;
+        
+        // Check all required fields
+        document.querySelectorAll('[required]').forEach(field => {
+          if (!validateField(field)) {
+            isValid = false;
+          }
+        });
+        
+        if (!isValid) {
+          e.preventDefault();
+          showToast("Please fill in all required fields", "error");
+          
+          // Find the first section with invalid fields
+          for (let i = 1; i <= 5; i++) {
+            const section = document.getElementById(`section${i}`);
+            const invalidFields = section.querySelectorAll('.is-invalid');
+            
+            if (invalidFields.length > 0) {
+              showSection(i);
+              invalidFields[0].focus();
+              break;
+            }
+          }
+        } else {
+          showToast("Form submitted! Calculating fare...", "success");
+        }
+      });
+      
+      // Add animation to form elements
+      const formGroups = document.querySelectorAll('.form-group');
+      formGroups.forEach((group, index) => {
+        group.style.opacity = 0;
+        group.style.transform = 'translateY(20px)';
+        group.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        
+        setTimeout(() => {
+          group.style.opacity = 1;
+          group.style.transform = 'translateY(0)';
+        }, 100 + index * 50);
+      });
+      
+      // Show welcome message
+      setTimeout(() => {
+        showToast("Welcome to RideFare! Fill in the form to predict your taxi fare", "info");
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

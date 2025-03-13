@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FareSpot | Smart Taxi Fare Prediction</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6366F1;
+      --primary-dark: #4F46E5;
+      --primary-light: #A5B4FC;
+      --secondary: #EC4899;
+      --accent: #8B5CF6;
+      --background: #F9FAFB;
+      --foreground: #111827;
+      --card: #FFFFFF;
+      --card-foreground: #111827;
+      --border: #E5E7EB;
+      --input: #E5E7EB;
+      --ring: #6366F1;
+      --radius: 0.5rem;
+      --success: #10B981;
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--foreground);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Header Styles */
+    .hero {
+      position: relative;
+      background: linear-gradient(to right, var(--primary-dark), var(--accent));
+      color: white;
+      padding: 8rem 0 6rem;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    .hero-pattern {
+      position: absolute;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      width: 100%;
+      height: 100%;
+      opacity: 0.5;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+      margin-bottom: 1.5rem;
+      display: inline-block;
+    }
+
+    .logo span {
+      color: var(--secondary);
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s forwards 0.3s;
+    }
+
+    .subtitle {
+      font-size: 1.25rem;
+      margin-bottom: 2.5rem;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      opacity: 0.9;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s forwards 0.6s;
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      background: white;
+      color: var(--primary-dark);
+      text-decoration: none;
+      padding: 1rem 2rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-size: 1.125rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1s forwards 0.9s;
+      gap: 0.5rem;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 30px rgba(0, 0, 0, 0.15);
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    .cta-button .icon {
+      transition: transform 0.3s ease;
+    }
+
+    .cta-button:hover .icon {
+      transform: translateX(4px);
+    }
+
+    /* Features Section */
+    .features {
+      padding: 6rem 0;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      color: var(--foreground);
+    }
+
+    .section-subtitle {
+      text-align: center;
+      font-size: 1.125rem;
+      color: #6B7280;
+      max-width: 600px;
+      margin: 0 auto 4rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .feature-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      height: 100%;
+      opacity: 0;
+      transform: translateY(30px);
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .feature-icon-wrapper {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      background: var(--primary-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .feature-icon {
+      font-size: 1.5rem;
+      color: var(--primary-dark);
+    }
+
+    .feature-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--foreground);
+    }
+
+    .feature-description {
+      color: #6B7280;
+      line-height: 1.6;
+      flex-grow: 1;
+    }
+
+    /* How It Works Section */
+    .how-it-works {
+      padding: 6rem 0;
+      background-color: #F3F4F6;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+
+    .step {
+      text-align: center;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .step-number {
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      margin: 0 auto 1.5rem;
+    }
+
+    .step-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--foreground);
+    }
+
+    .step-description {
+      color: #6B7280;
+      line-height: 1.6;
+    }
+
+    /* Testimonials */
+    .testimonials {
+      padding: 6rem 0;
+    }
+
+    .testimonial-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+
+    .testimonial {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      border: 1px solid var(--border);
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .testimonial-content {
+      font-style: italic;
+      color: #4B5563;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+    }
+
+    .author-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: #E5E7EB;
+      margin-right: 1rem;
+      overflow: hidden;
+    }
+
+    .author-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .author-info h4 {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .author-info p {
+      color: #6B7280;
+      font-size: 0.875rem;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      padding: 6rem 0;
+      background: linear-gradient(to right, var(--primary-dark), var(--accent));
+      color: white;
+      text-align: center;
+    }
+
+    .cta-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta-description {
+      font-size: 1.125rem;
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+      opacity: 0.9;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--foreground);
+      color: white;
+      padding: 4rem 0 2rem;
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .footer-logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: inline-block;
+    }
+
+    .footer-logo span {
+      color: var(--secondary);
+    }
+
+    .footer-description {
+      color: #D1D5DB;
+      margin-bottom: 1.5rem;
+      max-width: 300px;
+    }
+
+    .footer-heading {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-links a {
+      color: #D1D5DB;
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .footer-links a:hover {
+      color: white;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .social-link {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .social-link:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-3px);
+    }
+
+    .copyright {
+      text-align: center;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: #9CA3AF;
+      font-size: 0.875rem;
+    }
+
+    /* Animations */
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+
+    .floating {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+      
+      .hero {
+        padding: 6rem 0 4rem;
+      }
+      
+      .section-title {
+        font-size: 2rem;
+      }
+      
+      .cta-title {
+        font-size: 2rem;
+      }
+    }
+
+    /* Taxi animation */
+    .taxi-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100px;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .taxi {
+      position: absolute;
+      bottom: 10px;
+      left: -100px;
+      width: 60px;
+      height: 30px;
+      background-color: #FFD700;
+      border-radius: 5px;
+      animation: driveTaxi 15s linear infinite;
+    }
+
+    .taxi::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 10px;
+      width: 40px;
+      height: 15px;
+      background-color: #FFD700;
+      border-radius: 5px 5px 0 0;
+    }
+
+    .taxi::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 10px;
+      width: 10px;
+      height: 5px;
+      background-color: #333;
+      box-shadow: 30px 0 0 #333;
+      border-radius: 50%;
+    }
+
+    @keyframes driveTaxi {
+      0% {
+        left: -100px;
+      }
+      100% {
+        left: calc(100% + 100px);
+      }
+    }
+
+    /* Animated background */
+    .animated-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .animated-shape {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      animation: float 10s infinite ease-in-out;
+    }
+
+    .shape1 {
+      width: 150px;
+      height: 150px;
+      top: 20%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .shape2 {
+      width: 80px;
+      height: 80px;
+      top: 60%;
+      left: 20%;
+      animation-delay: 1s;
+    }
+
+    .shape3 {
+      width: 200px;
+      height: 200px;
+      top: 10%;
+      right: 15%;
+      animation-delay: 2s;
+    }
+
+    .shape4 {
+      width: 120px;
+      height: 120px;
+      bottom: 20%;
+      right: 10%;
+      animation-delay: 3s;
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="hero-pattern"></div>
+      <div class="animated-bg">
+        <div class="animated-shape shape1"></div>
+        <div class="animated-shape shape2"></div>
+        <div class="animated-shape shape3"></div>
+        <div class="animated-shape shape4"></div>
+      </div>
+      <div class="taxi-container">
+        <div class="taxi"></div>
+      </div>
+    </div>
+    <div class="container hero-content">
+      <a href="/" class="logo">Fare<span>Spot</span></a>
+      <h1>Predict Your Taxi Fare with AI</h1>
+      <p class="subtitle">Get accurate fare estimates powered by machine learning that considers weather, traffic, time, and more.</p>
+      <a href="/predict" class="cta-button">
+        Get Your Estimate
+        <span class="icon"><i class="fas fa-arrow-right"></i></span>
+      </a>
+    </div>
+  </section>
+  
+  <section class="features">
+    <div class="container">
+      <h2 class="section-title">Smart Prediction Features</h2>
+      <p class="section-subtitle">Our AI-powered system analyzes multiple factors to provide the most accurate fare estimates</p>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <i class="fas fa-map-marked-alt feature-icon"></i>
+          </div>
+          <h3 class="feature-title">Route Intelligence</h3>
+          <p class="feature-description">Our system analyzes optimal routes, distances, and historical data to calculate the most accurate fare estimates for your journey.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <i class="fas fa-cloud-sun-rain feature-icon"></i>
+          </div>
+          <h3 class="feature-title">Weather Impact</h3>
+          <p class="feature-description">Weather conditions affect travel time and demand. Our AI factors in current weather patterns to adjust your fare estimate accordingly.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <i class="fas fa-traffic-light feature-icon"></i>
+          </div>
+          <h3 class="feature-title">Traffic Awareness</h3>
+          <p class="feature-description">Traffic congestion can significantly impact your fare. Our system considers current traffic conditions for more precise predictions.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <i class="fas fa-clock feature-icon"></i>
+          </div>
+          <h3 class="feature-title">Time Sensitivity</h3>
+          <p class="feature-description">Fares vary by time of day, day of week, and holidays. Our AI accounts for these temporal factors in every prediction.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <i class="fas fa-car feature-icon"></i>
+          </div>
+          <h3 class="feature-title">Vehicle Factors</h3>
+          <p class="feature-description">The type and condition of the vehicle impact your fare. Our system includes these variables in the calculation for better accuracy.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <i class="fas fa-user-friends feature-icon"></i>
+          </div>
+          <h3 class="feature-title">Passenger Count</h3>
+          <p class="feature-description">The number of passengers can affect your fare. Our prediction model takes this into account for a more tailored estimate.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="how-it-works">
+    <div class="container">
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-subtitle">Get your fare estimate in three simple steps</p>
+      
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3 class="step-title">Enter Your Details</h3>
+          <p class="step-description">Fill in your ride details including pickup location, destination, time, and passenger count.</p>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3 class="step-title">Specify Conditions</h3>
+          <p class="step-description">Select current weather, traffic conditions, and any special circumstances for your ride.</p>
+        </div>
+        
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3 class="step-title">Get Your Estimate</h3>
+          <p class="step-description">Our AI instantly calculates your fare estimate based on all factors and displays the result.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="testimonials">
+    <div class="container">
+      <h2 class="section-title">What Our Users Say</h2>
+      <p class="section-subtitle">Thousands of travelers rely on our fare predictions every day</p>
+      
+      <div class="testimonial-grid">
+        <div class="testimonial">
+          <p class="testimonial-content">"The fare prediction was spot on! I was able to budget my business trip expenses accurately thanks to this tool."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">
+              <img src="/placeholder.svg?height=50&width=50" alt="Sarah Johnson">
+            </div>
+            <div class="author-info">
+              <h4>Sarah Johnson</h4>
+              <p>Business Traveler</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="testimonial">
+          <p class="testimonial-content">"I use this app every time I travel to a new city. It helps me avoid fare surprises and plan my transportation budget."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">
+              <img src="/placeholder.svg?height=50&width=50" alt="Michael Chen">
+            </div>
+            <div class="author-info">
+              <h4>Michael Chen</h4>
+              <p>Frequent Traveler</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="testimonial">
+          <p class="testimonial-content">"As a travel coordinator, I rely on accurate fare predictions for client budgeting. This tool has been invaluable for my work."</p>
+          <div class="testimonial-author">
+            <div class="author-avatar">
+              <img src="/placeholder.svg?height=50&width=50" alt="Jessica Rivera">
+            </div>
+            <div class="author-info">
+              <h4>Jessica Rivera</h4>
+              <p>Corporate Travel Coordinator</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="cta-section">
+    <div class="container">
+      <h2 class="cta-title">Ready to Predict Your Fare?</h2>
+      <p class="cta-description">Get an accurate estimate in seconds and plan your journey with confidence.</p>
+      <a href="/predict" class="cta-button">
+        Try It Now
+        <span class="icon"><i class="fas fa-arrow-right"></i></span>
+      </a>
+    </div>
+  </section>
+  
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div>
+          <a href="/" class="footer-logo">Ride<span>Fare</span></a>
+          <p class="footer-description">AI-powered taxi fare prediction for accurate travel planning and budgeting.</p>
+          <div class="social-links">
+            <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+          </div>
+        </div>
+        
+        <div>
+          <h3 class="footer-heading">Quick Links</h3>
+          <ul class="footer-links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/predict">Predict Fare</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="footer-heading">Resources</h3>
+          <ul class="footer-links">
+            <li><a href="#">Documentation</a></li>
+            <li><a href="#">API</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Support</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h3 class="footer-heading">Legal</h3>
+          <ul class="footer-links">
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Cookie Policy</a></li>
+            <li><a href="#">GDPR</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="copyright">
+        <p>&copy; 2025 RideFare. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Animate feature cards on scroll
+      const animateOnScroll = (elements, className) => {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry, index) => {
+            if (entry.isIntersecting) {
+              setTimeout(() => {
+                entry.target.style.opacity = 1;
+                entry.target.style.transform = 'translateY(0)';
+              }, index * 100);
+            }
+          });
+        }, { threshold: 0.1 });
+        
+        elements.forEach(el => observer.observe(el));
+      };
+      
+      animateOnScroll(document.querySelectorAll('.feature-card'), 'animate');
+      animateOnScroll(document.querySelectorAll('.step'), 'animate');
+      animateOnScroll(document.querySelectorAll('.testimonial'), 'animate');
+      
+      // Create multiple taxis with different speeds
+      const createMultipleTaxis = () => {
+        const taxiContainer = document.querySelector('.taxi-container');
+        
+        for (let i = 0; i < 3; i++) {
+          const taxi = document.createElement('div');
+          taxi.className = 'taxi';
+          
+          // Randomize position and animation
+          const delay = Math.random() * 10;
+          const duration = 15 + Math.random() * 10;
+          const bottom = 10 + Math.random() * 30;
+          
+          taxi.style.animationDelay = `${delay}s`;
+          taxi.style.animationDuration = `${duration}s`;
+          taxi.style.bottom = `${bottom}px`;
+          
+          taxiContainer.appendChild(taxi);
+        }
+      };
+      
+      createMultipleTaxis();
+    });
+  </script>
+</body>
+</html>

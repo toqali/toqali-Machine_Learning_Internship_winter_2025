@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fare Prediction Result | FareSpot</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6366F1;
+      --primary-dark: #4F46E5;
+      --primary-light: #A5B4FC;
+      --secondary: #EC4899;
+      --accent: #8B5CF6;
+      --background: #F9FAFB;
+      --foreground: #111827;
+      --card: #FFFFFF;
+      --card-foreground: #111827;
+      --border: #E5E7EB;
+      --input: #E5E7EB;
+      --ring: #6366F1;
+      --radius: 0.5rem;
+      --success: #10B981;
+      --error: #EF4444;
+      --warning: #F59E0B;
+    }
+
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--background);
+      color: var(--foreground);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Background animations */
+    .bg-animation {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.05;
+      pointer-events: none;
+    }
+
+    .taxi-icon {
+      position: absolute;
+      font-size: 2rem;
+      color: var(--primary-dark);
+      animation: moveTaxi 15s linear infinite;
+    }
+
+    @keyframes moveTaxi {
+      0% {
+        transform: translateX(-100px) translateY(var(--y, 100px)) rotate(var(--rotate, 0deg));
+      }
+      100% {
+        transform: translateX(calc(100vw + 100px)) translateY(var(--y, 100px)) rotate(var(--rotate, 0deg));
+      }
+    }
+
+    .road-line {
+      position: absolute;
+      height: 5px;
+      background-color: var(--foreground);
+      width: 100%;
+      opacity: 0.1;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header Styles */
+    header {
+      background: linear-gradient(to right, var(--primary-dark), var(--accent));
+      color: white;
+      padding: 1.5rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header-pattern {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.5;
+      z-index: 0;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+    }
+
+    .logo span {
+      color: var(--secondary);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .nav-link {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.3s ease;
+    }
+
+    .nav-link:hover {
+      opacity: 0.8;
+    }
+
+    /* Page Title */
+    .page-title {
+      text-align: center;
+      padding: 3rem 0 2rem;
+    }
+
+    .page-title h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, var(--primary-dark), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .page-title p {
+      color: #6B7280;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Result Styles */
+    .result-container {
+      max-width: 900px;
+      margin: 0 auto 4rem;
+    }
+
+    .result-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .result-header {
+      background: linear-gradient(to right, var(--primary-dark), var(--accent));
+      color: white;
+      padding: 1.5rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result-header-pattern {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.5;
+      z-index: 0;
+    }
+
+    .result-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .result-body {
+      padding: 2rem;
+    }
+
+    .fare-display {
+      text-align: center;
+      margin-bottom: 2rem;
+      padding: 2rem;
+      background-color: #F3F4F6;
+      border-radius: var(--radius);
+      border: 1px dashed #D1D5DB;
+    }
+
+    .fare-label {
+      font-size: 1.25rem;
+      color: #6B7280;
+      margin-bottom: 0.5rem;
+    }
+
+    .fare-amount {
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 0.5rem;
+      position: relative;
+      display: inline-block;
+    }
+
+    .fare-amount::before {
+      content: '$';
+      position: absolute;
+      left: -1rem;
+      top: 0.5rem;
+      font-size: 2rem;
+      color: var(--primary);
+    }
+
+    .fare-note {
+      font-size: 0.875rem;
+      color: #6B7280;
+    }
+
+    .ride-info {
+      background-color: #F3F4F6;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      border: 1px dashed #D1D5DB;
+    }
+
+    .ride-info-title {
+      font-weight: 600;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .ride-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .ride-info-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ride-info-label {
+      font-size: 0.875rem;
+      color: #6B7280;
+      margin-bottom: 0.25rem;
+    }
+
+    .ride-info-value {
+      font-weight: 500;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: white;
+      box-shadow: 0 4px 6px -1px rgba(99, 102, 241, 0.2);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-outline {
+      background-color: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--foreground);
+      color: white;
+      padding: 2rem 0;
+      text-align: center;
+    }
+
+    .footer-content {
+      opacity: 0.8;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .ride-info-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .actions {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+    }
+
+    /* Animation for fare amount */
+    @keyframes countUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fare-amount {
+      animation: countUp 1s ease-out forwards;
+    }
+
+    /* Receipt styling */
+    .receipt {
+      position: relative;
+      background-color: white;
+      padding: 2rem;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+    }
+
+    .receipt::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 10px;
+      background: repeating-linear-gradient(
+        -45deg,
+        var(--primary-light),
+        var(--primary-light) 10px,
+        var(--primary) 10px,
+        var(--primary) 20px
+      );
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+
+    .receipt-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .receipt-logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .receipt-title {
+      font-size: 1.25rem;
+      color: var(--foreground);
+      margin-bottom: 0.5rem;
+    }
+
+    .receipt-date {
+      font-size: 0.875rem;
+      color: #6B7280;
+    }
+
+    .receipt-body {
+      margin-bottom: 1.5rem;
+    }
+
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .receipt-label {
+      color: #6B7280;
+    }
+
+    .receipt-value {
+      font-weight: 500;
+    }
+
+    .receipt-total {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 0;
+      border-top: 2px solid var(--foreground);
+      margin-top: 1rem;
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .receipt-footer {
+      text-align: center;
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border);
+      font-size: 0.875rem;
+      color: #6B7280;
+    }
+
+    .receipt-barcode {
+      text-align: center;
+      margin: 1rem 0;
+      font-family: 'Libre Barcode 39', cursive;
+      font-size: 3rem;
+      letter-spacing: -2px;
+    }
+
+    /* Confetti animation */
+    .confetti-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: var(--primary);
+      opacity: 0.8;
+      animation: fall 5s linear infinite;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(-100px) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(calc(100vh + 100px)) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background animations -->
+  <div class="bg-animation">
+    <!-- Road lines -->
+    <div class="road-line" style="top: 20%;"></div>
+    <div class="road-line" style="top: 40%;"></div>
+    <div class="road-line" style="top: 60%;"></div>
+    <div class="road-line" style="top: 80%;"></div>
+    
+    <!-- Taxi icons -->
+    <i class="fas fa-taxi taxi-icon" style="--y: 20%; --rotate: 5deg; animation-duration: 20s;"></i>
+    <i class="fas fa-taxi taxi-icon" style="--y: 40%; --rotate: -3deg; animation-duration: 15s;"></i>
+    <i class="fas fa-taxi taxi-icon" style="--y: 60%; --rotate: 2deg; animation-duration: 25s;"></i>
+    <i class="fas fa-taxi taxi-icon" style="--y: 80%; --rotate: -5deg; animation-duration: 18s;"></i>
+  </div>
+
+  <header>
+    <div class="header-pattern"></div>
+    <div class="container header-content">
+      <a href="/" class="logo">Fare<span>Spot</span></a>
+      <div class="nav-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/predict" class="nav-link">Predict</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-title">
+    <div class="container">
+      <h1>Your Fare Prediction</h1>
+      <p>Based on the information you provided, here's your estimated fare</p>
+    </div>
+  </div>
+
+  <div class="container result-container">
+    <!-- Confetti animation -->
+    <div class="confetti-container" id="confetti-container"></div>
+    
+    <div class="result-card">
+      <div class="result-header">
+        <div class="result-header-pattern"></div>
+        <h2><i class="fas fa-receipt"></i> Fare Prediction Result</h2>
+      </div>
+      <div class="result-body">
+        <div class="fare-display">
+          <div class="fare-label">Estimated Fare</div>
+          <div class="fare-amount">{{ result.predicted_fare }}</div>
+          <div class="fare-note">This is an estimate based on the information provided</div>
+        </div>
+        
+        <div class="receipt">
+          <div class="receipt-header">
+            <div class="receipt-logo">RideFare</div>
+            <div class="receipt-title">Fare Estimate Receipt</div>
+            <div class="receipt-date">{{ result.date }} at {{ result.time }}</div>
+          </div>
+          
+          
+          <div class="receipt-body">
+            <div class="receipt-row">
+              <div class="receipt-label">Pickup Location</div>
+              <div class="receipt-value">{{ result.pickup_location|default:"Location " }}{{ result.pickup_location }}</div>
+            </div>
+            <div class="receipt-row">
+              <div class="receipt-label">Destination</div>
+              <div class="receipt-value">{{ result.destination|default:"Location " }}{{ result.destination }}</div>
+            </div>
+            <div class="receipt-row">
+              <div class="receipt-label">Distance</div>
+              <div class="receipt-value">{{ result.ride_distance|floatformat:1 }} miles</div>
+            </div>
+            <div class="receipt-row">
+              <div class="receipt-label">Passengers</div>
+              <div class="receipt-value">{{ result.passenger_count }} passenger{{ result.passenger_count|pluralize }}</div>
+            </div>
+            <div class="receipt-row">
+              <div class="receipt-label">Weather</div>
+              <div class="receipt-value">{{ result.weather|default:"Unknown"|title }}</div>
+            </div>
+            <div class="receipt-row">
+              <div class="receipt-label">Traffic</div>
+              <div class="receipt-value">{{ result.traffic|default:"Moderate"|title }}</div>
+            </div>
+            <div class="receipt-row">
+              <div class="receipt-label">Rush Hour</div>
+              <div class="receipt-value">{{ result.is_rush_hour }}</div>
+            </div>
+          </div>
+          
+          <div class="receipt-total">
+            <div>Total Estimated Fare</div>
+            <div>${{ result.predicted_fare }}</div>
+          </div>
+          
+          <div class="receipt-barcode">
+            {{ result.ride_id|default:"RIDEFARE" }}
+          </div>
+          
+          <div class="receipt-footer">
+            Thank you for using RideFare! This is an estimated fare and may vary based on actual conditions.
+          </div>
+        </div>
+        
+        <div class="ride-info">
+          <h4 class="ride-info-title"><i class="fas fa-user"></i> User Information</h4>
+          <div class="ride-info-grid">
+            <div class="ride-info-item">
+              <span class="ride-info-label">User ID</span>
+              <span class="ride-info-value">{{ result.user_id }}</span>
+            </div>
+            <div class="ride-info-item">
+              <span class="ride-info-label">User Name</span>
+              <span class="ride-info-value">{{ result.user_name }}</span>
+            </div>
+            <div class="ride-info-item">
+              <span class="ride-info-label">Driver Name</span>
+              <span class="ride-info-value">{{ result.driver_name }}</span>
+            </div>
+            <div class="ride-info-item">
+              <span class="ride-info-label">Ride ID</span>
+              <span class="ride-info-value">{{ result.ride_id|default:"AUTO-GENERATED" }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ride-info" style="margin-top: 1rem;">
+          <h4 class="ride-info-title"><i class="fas fa-route"></i> Ride Details</h4>
+          <div class="ride-info-grid">
+            <div class="ride-info-item">
+              <span class="ride-info-label">Pickup Location</span>
+              <span class="ride-info-value">{{ result.pickup_location|default:"Location " }}{{ result.pickup_location }}</span>
+            </div>
+            <div class="ride-info-item">
+              <span class="ride-info-label">Destination</span>
+              <span class="ride-info-value">{{ result.destination|default:"Location " }}{{ result.destination }}</span>
+            </div>
+            <div class="ride-info-item">
+              <span class="ride-info-label">Distance</span>
+              <span class="ride-info-value">{{ result.ride_distance|floatformat:1 }} miles</span>
+            </div>
+            <div class="ride-info-item">
+              <span class="ride-info-label">Passengers</span>
+              <span class="ride-info-value">{{ result.passenger_count }} passenger{{ result.passenger_count|pluralize }}</span>
+            </div>
+            <div class="ride-info-item">
+              <span class="ride-info-label">Pickup Coordinates</span>
+              <span class="ride-info-value">({{ result.pickup_lat|floatformat:6 }}, {{ result.pickup_lon|floatformat:6 }})</span>
+            </div>
+            <div class="ride-info-item">
+              <span class="ride-info-label">Dropoff Coordinates</span>
+              <span class="ride-info-value">({{ result.dropoff_lat|floatformat:6 }}, {{ result.dropoff_lon|floatformat:6 }})</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ride-info" style="margin-top: 1rem;">
+          <h4 class="ride-info-title"><i class="fas fa-cloud-sun-rain"></i> Conditions</h4>
+          <div class="ride-info-grid">
+            <div class="ride-info-item">
+              <span class="ride-info-label">Weather</span>
+              <span class="ride-info-value">{{ result.weather|default:"Unknown"|title }}</span>
+            </div>
+            <div class="ride-info-item">
+              <span class="ride-info-label">Traffic</span>
+              <span class="ride-info-value">{{ result.traffic|default:"Moderate"|title }}</span>
+            </div>
+            <div class="ride-info-item">
+              <span class="ride-info-label">Car Condition</span>
+              <span class="ride-info-value">{{ result.car_condition|default:"Good"|title }}</span>
+            </div>
+            <div class="ride-info-item">
+              <span class="ride-info-label">Rush Hour</span>
+              <span class="ride-info-value">{{ result.is_rush_hour }}</span>
+            </div>
+            <div class="ride-info-item">
+              <span class="ride-info-label">Date</span>
+              <span class="ride-info-value">{{ result.date }}</span>
+            </div>
+            <div class="ride-info-item">
+              <span class="ride-info-label">Time</span>
+              <span class="ride-info-value">{{ result.time }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="actions">
+          <a href="/predict" class="btn btn-outline">
+            <i class="fas fa-redo"></i> Make Another Prediction
+          </a>
+          <a href="/" class="btn btn-primary">
+            <i class="fas fa-home"></i> Back to Home
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <p>&copy; 2025 RideFare. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Create confetti animation
+      const confettiContainer = document.getElementById('confetti-container');
+      const colors = ['#6366F1', '#4F46E5', '#A5B4FC', '#EC4899', '#8B5CF6'];
+      
+      for (let i = 0; i < 100; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.width = Math.random() * 10 + 5 + 'px';
+        confetti.style.height = Math.random() * 10 + 5 + 'px';
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDelay = Math.random() * 5 + 's';
+        confetti.style.animationDuration = Math.random() * 3 + 3 + 's';
+        confettiContainer.appendChild(confetti);
+      }
+      
+      // Animate fare amount
+      const fareAmount = document.querySelector('.fare-amount');
+      const targetAmount = parseFloat(fareAmount.textContent);
+      let currentAmount = 0;
+      const duration = 1000; // 1 second
+      const frameRate = 60;
+      const increment = targetAmount / (duration / 1000 * frameRate);
+      
+      function animateFare() {
+        if (currentAmount < targetAmount) {
+          currentAmount += increment;
+          if (currentAmount > targetAmount) {
+            currentAmount = targetAmount;
+          }
+          fareAmount.textContent = currentAmount.toFixed(2);
+          requestAnimationFrame(animateFare);
+        }
+      }
+      
+      animateFare();
+    });
+  </script>
+</body>
+</html>
+
