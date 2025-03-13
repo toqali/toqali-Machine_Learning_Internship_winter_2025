@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make a Prediction - PocketPilot AI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff4d9e;
+            --secondary: #ff0080;
+            --accent: #ff69b4;
+            --background: #121212;
+            --card-bg: #1e1e1e;
+            --form-bg: #252525;
+            --text: #ffffff;
+            --text-light: #e0e0e0;
+            --border: #333333;
+            --success: #36f1cd;
+            --input-bg: #2a2a2a;
+            --input-border: #3a3a3a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #000000, #1a1a1a);
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            display: inline-block;
+            margin: 0.5rem 0;
+            text-shadow: 0 0 10px rgba(255, 77, 158, 0.5);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            animation: fadeInDown 0.8s ease-out;
+            color: var(--text);
+            text-shadow: 0 0 10px rgba(255, 77, 158, 0.3);
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.8s ease-out 0.2s backwards;
+            border: 1px solid var(--border);
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #000000, #1a1a1a);
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .card-header h2 {
+            font-size: 1.8rem;
+            margin: 0;
+            color: var(--text);
+        }
+        
+        .card-body {
+            padding: 2rem;
+        }
+        
+        .ride-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
+            border: 2px solid var(--input-border);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background-color: var(--input-bg);
+            color: var(--text);
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(255, 77, 158, 0.2);
+            outline: none;
+        }
+
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+        
+        .form-section-title {
+            grid-column: 1 / -1;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 15px rgba(255, 77, 158, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(255, 77, 158, 0.5);
+        }
+        
+        .form-actions {
+            text-align: center;
+            margin-top: 2rem;
+            grid-column: 1 / -1;
+        }
+        
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: var(--accent);
+            text-shadow: 0 0 8px rgba(255, 77, 158, 0.5);
+        }
+        
+        .weather-icons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .weather-icon {
+            padding: 0.5rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            background-color: var(--input-bg);
+            color: var(--text-light);
+        }
+        
+        .weather-icon.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(255, 77, 158, 0.5);
+        }
+        
+        footer {
+            background: #000000;
+            color: var(--text-light);
+            padding: 1.5rem 0;
+            text-align: center;
+            border-top: 3px solid var(--primary);
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .checkbox-item input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+
+        .centered-field {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .centered-input {
+            max-width: 400px; 
+        }
+        
+        /* Date row */
+        .date-row {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        
+        /* Number input styling */
+        input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: textfield;
+        }
+        
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { 
+            -webkit-appearance: none;
+            margin: 0; 
+        }
+        
+        .number-input-container {
+            position: relative;
+        }
+        
+        .number-controls {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .number-controls button {
+            background: var(--primary);
+            border: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+        }
+        
+        .number-controls button:hover {
+            background: var(--secondary);
+            box-shadow: 0 0 8px rgba(255, 77, 158, 0.5);
+        }
+        
+        /* Ride info section */
+        .ride-info {
+            padding: 15px;
+            background-color: rgba(255, 77, 158, 0.1);
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 1px dashed var(--primary);
+            display: none;
+        }
+        
+        .ride-info p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+        
+        .ride-info p strong {
+            color: var(--primary);
+        }
+
+        /* Style for selects */
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23ff4d9e' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: calc(100% - 12px) center;
+            padding-right: 30px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <a href="/" class="logo">PocketPilot <span style="color: var(--accent);">AI</span></a>
+        </div>
+    </header>
+    
+    <div class="container">
+        <h1>Predict Your Ride Fare</h1>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-calculator"></i> Ride Details</h2>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'predict' %}" class="ride-form">
+                    {% csrf_token %}
+                    
+                    <div class="form-section-title">
+                        <i class="fas fa-user"></i> User Information
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="user_id">User ID</label>
+                        <input type="text" name="user_id" id="user_id" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="user_name">User Name</label>
+                        <input type="text" name="user_name" id="user_name" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-section-title">
+                        <i class="fas fa-car-side"></i> Ride Details
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="driver_name">Driver Name</label>
+                        <input type="text" name="driver_name" id="driver_name" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="passenger_count">Passenger Count</label>
+                        <select name="passenger_count" id="passenger_count" class="form-control" required>
+                            <option value="">Select Count</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6+</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pickup_location">Pickup Location</label>
+                        <input type="text" name="pickup_location" id="pickup_location" class="form-control" required onchange="checkLocationInputs()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="destination">Destination</label>
+                        <input type="text" name="destination" id="destination" class="form-control" required onchange="checkLocationInputs()">
+                    </div>
+                    
+                    <div class="form-group centered-field">
+                        <label for="ride_distance">Ride Distance (miles)</label>
+                        <input type="number" name="ride_distance" id="ride_distance" class="form-control centered-input" min="0" step="0.1" required>
+                    </div>
+
+                    <div class="form-section-title">
+                        <i class="fas fa-road"></i> Ride Conditions
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="car_condition">Car Condition</label>
+                        <select name="car_condition" id="car_condition" class="form-control" required>
+                            <option value="">Select Condition</option>
+                            <option value="excellent">Excellent</option>
+                            <option value="good">Very Good</option>
+                            <option value="fair">Good</option>
+                            <option value="poor">Bad</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="traffic_condition">Traffic Condition</label>
+                        <select name="traffic_condition" id="traffic_condition" class="form-control" required>
+                            <option value="">Select Condition</option>
+                            <option value="light">Congested Traffic</option>
+                            <option value="moderate">Dense Traffic</option>
+                            <option value="heavy">Flow Traffic</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-section-title">
+                        <i class="fas fa-calendar-alt"></i> Date Information
+                    </div>
+                    
+                    <!-- Date fields in one row -->
+                    <div class="date-row">
+                        <div class="form-group">
+                            <label for="ride_year">Year</label>
+                            <div class="number-input-container">
+                                <input type="number" name="ride_year" id="ride_year" min="2020" max="2030" value="2025" class="form-control" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ride_month">Month</label>
+                            <select name="ride_month" id="ride_month" class="form-control" required onchange="updateDaysInMonth()">
+                                <option value="">Select Month</option>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ride_day">Day</label>
+                            <select name="ride_day" id="ride_day" class="form-control" required>
+                                <option value="">Select Day</option>
+                                <!-- Days 1-31 -->
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                                <option value="21">21</option>
+                                <option value="22">22</option>
+                                <option value="23">23</option>
+                                <option value="24">24</option>
+                                <option value="25">25</option>
+                                <option value="26">26</option>
+                                <option value="27">27</option>
+                                <option value="28">28</option>
+                                <option value="29">29</option>
+                                <option value="30">30</option>
+                                <option value="31">31</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section-title">
+                        <i class="fas fa-clock"></i> Time Information
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="request_hour">Request Hour (0-23)</label>
+                        <input type="number" min="0" max="23" name="request_hour" id="request_hour" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="request_day_of_week">Day of the Week</label>
+                        <select name="request_day_of_week" id="request_day_of_week" class="form-control" required>
+                            <option value="">Select Day</option>
+                            <option value="0">Monday</option>
+                            <option value="1">Tuesday</option>
+                            <option value="2">Wednesday</option>
+                            <option value="3">Thursday</option>
+                            <option value="4">Friday</option>
+                            <option value="5">Saturday</option>
+                            <option value="6">Sunday</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-section-title">
+                        <i class="fas fa-cloud-sun-rain"></i> Weather & Special Conditions
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Weather Condition</label>
+                        <div class="weather-icons">
+                            <input type="radio" name="weather_condition" id="weather_cloudy" value="cloudy" style="display: none;">
+                            <label for="weather_cloudy" class="weather-icon" onclick="selectWeather(this, 'weather_cloudy')">
+                                <i class="fas fa-cloud"></i> Cloudy
+                            </label>
+                            
+                            <input type="radio" name="weather_condition" id="weather_rainy" value="rainy" style="display: none;">
+                            <label for="weather_rainy" class="weather-icon" onclick="selectWeather(this, 'weather_rainy')">
+                                <i class="fas fa-cloud-rain"></i> Rainy
+                            </label>
+                            
+                            <input type="radio" name="weather_condition" id="weather_stormy" value="stormy" style="display: none;">
+                            <label for="weather_stormy" class="weather-icon" onclick="selectWeather(this, 'weather_stormy')">
+                                <i class="fas fa-bolt"></i> Stormy
+                            </label>
+                            
+                            <input type="radio" name="weather_condition" id="weather_sunny" value="sunny" style="display: none;">
+                            <label for="weather_sunny" class="weather-icon" onclick="selectWeather(this, 'weather_sunny')">
+                                <i class="fas fa-sun"></i> Sunny
+                            </label>
+                            
+                            <input type="radio" name="weather_condition" id="weather_windy" value="windy" style="display: none;">
+                            <label for="weather_windy" class="weather-icon" onclick="selectWeather(this, 'weather_windy')">
+                                <i class="fas fa-wind"></i> Windy
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Special Conditions</label>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="is_rush_hour" id="is_rush_hour">
+                                <label for="is_rush_hour">Rush Hour</label>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="is_weekend" id="is_weekend">
+                                <label for="is_weekend">Weekend</label>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="is_night" id="is_night">
+                                <label for="is_night">Night Time</label>
+                            </div>
+                            
+                            <div class="checkbox-item">
+                                <input type="checkbox" name="is_holiday" id="is_holiday">
+                                <label for="is_holiday">Holiday</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-dollar-sign"></i> Calculate Fare
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 PocketPilot AI. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Function to select a single weather option
+        function selectWeather(element, inputId) {
+            // Remove active class from all weather icons
+            document.querySelectorAll('.weather-icon').forEach(icon => {
+                icon.classList.remove('active');
+            });
+            
+            // Add active class to selected icon
+            element.classList.add('active');
+            
+            // Check the corresponding radio button
+            document.getElementById(inputId).checked = true;
+        }
+        
+        // Function to adjust year with up/down buttons
+        function adjustYear(amount) {
+            const yearInput = document.getElementById('ride_year');
+            const currentYear = parseInt(yearInput.value) || 2025;
+            const newYear = currentYear + amount;
+            
+            // Check if within allowed range
+            if (newYear >= 2020 && newYear <= 2030) {
+                yearInput.value = newYear;
+                updateDaysInMonth();
+            }
+        }
+        
+        // Function to update days based on month and year selection
+        function updateDaysInMonth() {
+            const year = document.getElementById('ride_year').value;
+            const month = document.getElementById('ride_month').value;
+            const daySelect = document.getElementById('ride_day');
+            
+            if (year && month) {
+                // Get number of days in the selected month
+                const daysInMonth = new Date(year, month, 0).getDate();
+                
+                // Save current selection if possible
+                const currentSelection = daySelect.value;
+                
+                // Clear current options
+                daySelect.innerHTML = '<option value="">Select Day</option>';
+                
+                // Add options for each day
+                for (let i = 1; i <= daysInMonth; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = i;
+                    daySelect.appendChild(option);
+                }
+                
+                // Restore selection if valid
+                if (currentSelection && currentSelection <= daysInMonth) {
+                    daySelect.value = currentSelection;
+                }
+            }
+        }
+        
+        // Function to show ride info when both locations are filled
+        function checkLocationInputs() {
+            const pickup = document.getElementById('pickup_location').value;
+            const destination = document.getElementById('destination').value;
+            const rideInfo = document.getElementById('rideInfo');
+            
+            if (pickup && destination) {
+                rideInfo.style.display = 'block';
+            } else {
+                rideInfo.style.display = 'none';
+            }
+        }
+        
+        // Auto-set weekend based on day selection
+        document.getElementById('request_day_of_week').addEventListener('change', function() {
+            const isWeekend = this.value === '5' || this.value === '6'; // Saturday or Sunday
+            document.getElementById('is_weekend').checked = isWeekend;
+        });
+        
+        // Auto-set night based on hour selection
+        document.getElementById('request_hour').addEventListener('change', function() {
+            const hour = parseInt(this.value);
+            const isNight = hour >= 20 || hour < 6; // 8PM to 6AM
+            document.getElementById('is_night').checked = isNight;
+            
+            // Also set rush hour
+            const isRushHour = (hour >= 7 && hour <= 9) || (hour >= 16 && hour <= 18);
+            document.getElementById('is_rush_hour').checked = isRushHour;
+        });
+        
+        // Initialize date fields and weather buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date as default
+            const now = new Date();
+            document.getElementById('ride_year').value = now.getFullYear();
+            document.getElementById('ride_month').value = now.getMonth() + 1;
+            updateDaysInMonth();
+            document.getElementById('ride_day').value = now.getDate();
+            
+            // Add animation to form elements
+            const formGroups = document.querySelectorAll('.form-group');
+            
+            formGroups.forEach((group, index) => {
+                group.style.opacity = 0;
+                group.style.transform = 'translateY(20px)';
+                group.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                
+                setTimeout(() => {
+                    group.style.opacity = 1;
+                    group.style.transform = 'translateY(0)';
+                }, 100 + index * 50);
+            });
+        });
+    </script>
+</body>
+</html>

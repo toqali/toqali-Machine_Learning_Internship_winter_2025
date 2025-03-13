@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result - PocketPilot AI</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff4d9e;
+            --secondary: #ff0080;
+            --accent: #ff69b4;
+            --background: #121212;
+            --card-bg: #1e1e1e;
+            --text: #ffffff;
+            --text-light: #e0e0e0;
+            --border: #333333;
+            --success: #06d6a0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #000000, #1a1a1a);
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 3px solid var(--primary);
+        }
+        
+        .header-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            opacity: 0.2;
+        }
+        
+        .header-bg div {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 77, 158, 0.3);
+            animation: float 8s infinite ease-in-out;
+        }
+        
+        .circle1 {
+            width: 60px;
+            height: 60px;
+            left: 10%;
+            top: 20%;
+            animation-delay: 0s;
+        }
+        
+        .circle2 {
+            width: 80px;
+            height: 80px;
+            right: 15%;
+            top: 40%;
+            animation-delay: 1s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(10deg);
+            }
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+            display: inline-block;
+            margin: 0.5rem 0;
+            position: relative;
+            z-index: 2;
+            text-shadow: 0 0 10px rgba(255, 77, 158, 0.5);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            animation: fadeInDown 0.8s ease-out;
+            color: var(--text);
+            text-shadow: 0 0 10px rgba(255, 77, 158, 0.5);
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.8s ease-out 0.2s backwards;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 77, 158, 0.3);
+            border-color: var(--primary);
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .card-header h2 {
+            font-size: 1.8rem;
+            margin: 0;
+        }
+        
+        .card-body {
+            padding: 2rem;
+        }
+        
+        .prediction-result {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .fare-amount {
+            font-size: 3rem;
+            color: var(--primary);
+            font-weight: bold;
+            margin: 1.5rem 0;
+            animation: pulse 2s infinite;
+            text-shadow: 0 0 10px rgba(255, 77, 158, 0.5);
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 77, 158, 0.7);
+                transform: scale(1);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 77, 158, 0);
+                transform: scale(1.05);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 77, 158, 0);
+                transform: scale(1);
+            }
+        }
+        
+        .ride-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .detail-item {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .detail-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), 0 0 5px rgba(255, 77, 158, 0.3);
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+        
+        .detail-value {
+            font-size: 1.1rem;
+            color: var(--text-light);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 15px rgba(255, 77, 158, 0.5);
+            animation: pulse 2s infinite;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(255, 77, 158, 0.7);
+        }
+        
+        .form-actions {
+            text-align: center;
+            margin-top: 2rem;
+        }
+        
+        footer {
+            background: #000000;
+            color: var(--text-light);
+            padding: 2rem 0;
+            text-align: center;
+            border-top: 3px solid var(--primary);
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            position: relative;
+            color: var(--text);
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 5px;
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        
+        /* For smaller screens, stack to one column */
+        @media (max-width: 768px) {
+            .ride-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-bg">
+            <div class="circle1"></div>
+            <div class="circle2"></div>
+        </div>
+        <div class="container">
+            <a href="/" class="logo">PocketPilot <span style="color: var(--accent);">AI</span></a>
+        </div>
+    </header>
+    
+    <div class="container">
+        <h1>Prediction Result</h1>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-check-circle"></i> Your Ride Prediction</h2>
+            </div>
+            <div class="card-body">
+                <div class="prediction-result">
+                    <h3>Estimated Fare Amount</h3>
+                    <div class="fare-amount">${{ result.predicted_fare }}</div>
+                    <p>This prediction is based on your ride details.</p>
+                </div>
+                
+                <div class="ride-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Pickup Location</div>
+                        <div class="detail-value">{{ result.pickup_location }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Destination</div>
+                        <div class="detail-value">{{ result.destination }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Passenger Count</div>
+                        <div class="detail-value">{{ result.passenger_count }}</div>
+                    </div>
+                    
+                    <div class="detail-item">
+                        <div class="detail-label">Driver</div>
+                        <div class="detail-value">{{ result.driver_name }}</div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="/predict/" class="btn btn-primary">
+                        <i class="fas fa-calculator"></i> New Prediction
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 PocketPilot AI. All rights reserved.</p>
+        </div>
+    </footer>
+    
+    <script>
+        // Add animation for detail items on scroll
+        document.addEventListener('DOMContentLoaded', function() {
+            const detailItems = document.querySelectorAll('.detail-item');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            detailItems.forEach(item => {
+                item.style.opacity = 0;
+                item.style.transform = 'translateY(50px)';
+                item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                observer.observe(item);
+            });
+        });
+    </script>
+</body>
+</html>
