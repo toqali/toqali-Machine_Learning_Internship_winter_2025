@@ -1,0 +1,15 @@
+{% extends 'cellula_app/base.html' %}
+
+{% block content %}
+<h2 class="mb-4">Register</h2>
+<form method="post" class="card p-4 shadow bg-light text-dark">
+    {% csrf_token %}
+    <div class="mb-3">
+        <input type="text" name="username" class="form-control" placeholder="Username" required>
+    </div>
+    <div class="mb-3">
+        <input type="password" name="password" class="form-control" placeholder="Password" required>
+    </div>
+    <button type="submit" class="btn btn-primary w-100">Register</button>
+</form>
+{% endblock %}

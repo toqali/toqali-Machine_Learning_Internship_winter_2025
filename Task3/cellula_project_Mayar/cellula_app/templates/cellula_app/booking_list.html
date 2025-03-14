@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <title>Booking List</title>
+</head>
+<body class="bg-light">
+
+<!-- Navbar -->
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'home' %}">Cellula Bookings</a>
+    </div>
+</nav>
+
+<!-- Main Container -->
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Booking Data</h1>
+
+    <!-- Search Form -->
+    <form method="GET" class="d-flex mb-4">
+        <input class="form-control me-2" type="search" placeholder="Search by Booking ID" name="q" value="{{ query }}">
+        <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+
+    <!-- Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Adults</th>
+                    <th>Children</th>
+                    <th>Room Type</th>
+                    <th>Lead Time</th>
+                    <th>Average Price</th>
+                    <th>Booking Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.booking_id }}</td>
+                    <td>{{ booking.number_of_adults }}</td>
+                    <td>{{ booking.number_of_children }}</td>
+                    <td>{{ booking.room_type }}</td>
+                    <td>{{ booking.lead_time }} days</td>
+                    <td>${{ booking.average_price }}</td>
+                    <td>{{ booking.booking_status }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center">No bookings found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
