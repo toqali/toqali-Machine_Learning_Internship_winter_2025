@@ -1,0 +1,475 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>NYC Taxi Fare Predictor</title>
+
+    <!-- Google font -->
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,400i,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap -->
+    <link type="text/css" rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}"/>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <!-- Custom stylesheet -->
+    <link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+</head>
+
+<body>
+    <div id="booking" class="section">
+      <div class="section-center">
+        <div class="header-container">
+            <h1 class="booking-title"><i class="fas fa-taxi"></i> NYC Taxi Fare Predictor</h1>
+        </div>
+        
+        <div class="container">
+            <div class="row">
+              <div class="booking-form">
+                <form id="prediction-form">
+                  {% csrf_token %}
+                  <!-- User Information Section -->
+                  <div class="form-section">
+                    <h3><i class="fas fa-user"></i> Passenger & Driver Information</h3>
+                    
+                    <div class="row no-margin">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="user_id" class="form-label">User ID</label>
+                                <input class="form-control" id="user_id" type="text" placeholder="Enter User ID" name="user_id">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="user_name" class="form-label">User Name</label>
+                                <input class="form-control" id="user_name" type="text" placeholder="Enter User Name" name="user_name">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row no-margin">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="driver_name" class="form-label">Driver Name</label>
+                                <input class="form-control" id="driver_name" type="text" placeholder="Enter Driver Name" name="driver_name">
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="passenger_count" class="form-label">Passenger Count</label>
+                                <input id="passenger_count" class="form-control" type="number" name="passenger_count" min="1" max="6" value="1" placeholder="Number of passengers">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row no-margin">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="trip_key" class="form-label">Trip Key <small>(Optional identifier)</small></label>
+                                <input class="form-control" id="trip_key" type="text" placeholder="Trip identifier" name="key">
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Ride Details Section -->
+                  <div class="form-section">
+                    <h3><i class="fas fa-map-marker-alt"></i> Ride Details</h3>
+                    
+                    <div class="form-group">
+                        <label for="pickup_datetime" class="form-label">Pickup Date & Time</label>
+                        <input id="pickup_datetime" class="form-control" type="datetime-local" required name="pickup_datetime">
+                    </div>
+                    
+                    <div class="row no-margin">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="pickup_longitude" class="form-label">Pickup Longitude</label>
+                                <input id="pickup_longitude" class="form-control" type="number" step="0.000001" placeholder="-73.98" name="pickup_longitude">
+                                <small class="text-muted">NYC range: approximately -74.05 to -73.70</small>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="pickup_latitude" class="form-label">Pickup Latitude</label>
+                                <input id="pickup_latitude" class="form-control" type="number" step="0.000001" placeholder="40.76" name="pickup_latitude">
+                                <small class="text-muted">NYC range: approximately 40.55 to 40.92</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row no-margin">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="dropoff_longitude" class="form-label">Dropoff Longitude</label>
+                                <input id="dropoff_longitude" class="form-control" type="number" step="0.000001" placeholder="-74.01" name="dropoff_longitude">
+                                <small class="text-muted">NYC range: approximately -74.05 to -73.70</small>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="dropoff_latitude" class="form-label">Dropoff Latitude</label>
+                                <input id="dropoff_latitude" class="form-control" type="number" step="0.000001" placeholder="40.73" name="dropoff_latitude">
+                                <small class="text-muted">NYC range: approximately 40.55 to 40.92</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Add Distance Input Field -->
+                    <div class="row no-margin">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="distance" class="form-label">Trip Distance (miles)</label>
+                                <input id="distance" class="form-control" type="number"  min="0" placeholder="5.0" step="0.000000001" name="distance" required>
+                                <small class="text-muted">Enter the trip distance in miles</small>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="bearing" class="form-label">Bearing (optional)</label>
+                                <input id="bearing" class="form-control" type="number" step="0.000000001" max="360" placeholder="45.0" name="bearing">
+                                <small class="text-muted">Direction of travel (0-360 degrees)</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mini-map-container">
+                        <div id="map-placeholder">
+                            <p><i class="fas fa-map-marked-alt"></i> Map visualization will appear here when coordinates are entered</p>
+                        </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Conditions Section -->
+                  <div class="form-section">
+                    <h3><i class="fas fa-cloud"></i> Traveling Conditions</h3>
+                    
+                    <div class="row no-margin">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="car_condition" class="form-label">Car Condition</label>
+                                <select id="car_condition" class="form-control" name="car_condition">
+                                    <option value="Excellent">Excellent</option>
+                                    <option value="Very Good" selected>Very Good</option>
+                                    <option value="Good">Good</option>
+                                    <option value="Bad">Bad</option>
+                                </select>
+                                <span class="select-arrow"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="weather" class="form-label">Weather</label>
+                                <select id="weather" class="form-control" name="weather">
+                                    <option value="sunny" selected>Sunny</option>
+                                    <option value="cloudy">Cloudy</option>
+                                    <option value="rainy">Rainy</option>
+                                    <option value="windy">Windy</option>
+                                    <option value="stormy">Stormy</option>
+                                </select>
+                                <span class="select-arrow"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label for="traffic_condition" class="form-label">Traffic Condition</label>
+                                <select id="traffic_condition" class="form-control" name="traffic_condition">
+                                    <option value="Flow Traffic" selected>Flow Traffic</option>
+                                    <option value="Congested Traffic">Congested Traffic</option>
+                                    <option value="Dense Traffic">Dense Traffic</option>
+                                </select>
+                                <span class="select-arrow"></span>
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+                  
+                  <!-- New Landmark Distances Section -->
+                  <div class="form-section">
+                    <h3><i class="fas fa-map-pin"></i> Landmark Distances (miles)</h3>
+                    
+                    <div class="row no-margin">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="jfk_dist" class="form-label">Distance to JFK Airport</label>
+                                <input class="form-control" id="jfk_dist" type="number" step="0.00000001" min="0" placeholder="0.0000" name="jfk_dist">
+                                <small class="text-muted">Distance from pickup to JFK in miles</small>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="ewr_dist" class="form-label">Distance to Newark Airport</label>
+                                <input class="form-control" id="ewr_dist" type="number" step="0.00000001" min="0" placeholder="0.0000" name="ewr_dist">
+                                <small class="text-muted">Distance from pickup to EWR in miles</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row no-margin">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="lga_dist" class="form-label">Distance to LaGuardia Airport</label>
+                                <input class="form-control" id="lga_dist" type="number" step="0.00000001" min="0" placeholder="0.0000" name="lga_dist">
+                                <small class="text-muted">Distance from pickup to LGA in miles</small>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="sol_dist" class="form-label">Distance to Statue of Liberty</label>
+                                <input class="form-control" id="sol_dist" type="number" step="0.00000001" min="0" placeholder="0.0000" name="sol_dist">
+                                <small class="text-muted">Distance from pickup to Statue of Liberty in miles</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row no-margin">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label for="nyc_dist" class="form-label">Distance to NYC Center</label>
+                                <input class="form-control" id="nyc_dist" type="number" step="0.00000001" min="0" placeholder="0.0000" name="nyc_dist">
+                                <small class="text-muted">Distance from pickup to Manhattan center in miles</small>
+                            </div>
+                        </div>
+                        <!-- <div class="col-sm-6">
+                            <div class="form-group">
+                                <button type="button" class="btn btn-info mt-4" onclick="calculateDistances()">
+                                    <i class="fas fa-calculator"></i> Calculate Distances
+                                </button>
+                                <small class="text-muted d-block">Click to auto-fill distances based on coordinates</small>
+                            </div>
+                        </div> -->
+                    </div>
+                  </div>
+                  
+                  <!-- Hidden fields that will be calculated by JavaScript -->
+                  <!-- <input type="hidden" id="bearing" name="bearing"> -->
+                  <!-- <input type="hidden" id="jfk_dist" name="jfk_dist">
+                  <input type="hidden" id="ewr_dist" name="ewr_dist">
+                  <input type="hidden" id="lga_dist" name="lga_dist">
+                  <input type="hidden" id="sol_dist" name="sol_dist">
+                  <input type="hidden" id="nyc_dist" name="nyc_dist"> -->
+                  <input type="hidden" id="hour" name="hour">
+                  <input type="hidden" id="day" name="day">
+                  <input type="hidden" id="month" name="month">
+                  <input type="hidden" id="weekday" name="weekday">
+                  <input type="hidden" id="year" name="year">
+                  
+                  <div class="form-btn">
+                    <button class="submit-btn" type="submit">
+                        <i class="fas fa-calculator"></i> Calculate Fare
+                    </button>
+                  </div>
+                </form>
+                
+                <div id="prediction-result" class="prediction-result">
+                  <button class="close-btn" onclick="closePrediction()">×</button>
+                  <div class="result-content">
+                    <h2><i class="fas fa-receipt"></i> Estimated Fare</h2>
+                    <div class="fare-amount">$<span id="prediction-text">0.00</span></div>
+                    <div class="fare-details">
+                        <p><strong>Distance:</strong> <span id="result-distance">0</span> miles</p>
+                        <!-- <p><strong>Trip Duration (est.):</strong> <span id="result-duration">0</span> minutes</p> -->
+                        <!-- <p><strong>Time of Day:</strong> <span id="result-time">Morning</span></p> -->
+                    </div>
+                    <!-- <div class="additional-details">
+                        <p><strong>Weather:</strong> <span id="result-weather">Clear</span></p>
+                        <p><strong>Traffic:</strong> <span id="result-traffic">Light</span></p>
+                    </div>
+                    <div class="disclaimer">
+                        <p><small>* This is an estimate. Actual fare may vary based on traffic and other conditions.</small></p>
+                    </div> -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+    
+    <!-- Add Leaflet.js for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    
+    <script>
+      // Constants for distance calculations
+      const JFK_COORDS = [40.6413, -73.7781]; // JFK Airport coordinates
+      const EWR_COORDS = [40.6895, -74.1745]; // Newark Airport coordinates
+      const LGA_COORDS = [40.7769, -73.8740]; // LaGuardia Airport coordinates
+      const SOL_COORDS = [40.6892, -74.0445]; // Statue of Liberty coordinates
+      const NYC_CENTER = [40.7128, -74.0060]; // NYC center (Manhattan)
+      
+      let map = null;
+      let pickupMarker = null;
+      let dropoffMarker = null;
+      let routeLine = null;
+      
+      // Set default datetime to current time
+      document.addEventListener("DOMContentLoaded", function() {
+          const now = new Date();
+          now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+          document.getElementById('pickup_datetime').value = now.toISOString().slice(0, 16);
+          
+          // Add event listeners for coordinate inputs
+          document.getElementById('pickup_longitude').addEventListener('change', initMap);
+          document.getElementById('pickup_latitude').addEventListener('change', initMap);
+          document.getElementById('dropoff_longitude').addEventListener('change', initMap);
+          document.getElementById('dropoff_latitude').addEventListener('change', initMap);
+          
+          // Add event listener for form submission
+          document.getElementById('prediction-form').addEventListener('submit', function(e) {
+              e.preventDefault();
+              calculateAndDisplayFare();
+          });
+          
+          // Extract datetime components when datetime changes
+          document.getElementById('pickup_datetime').addEventListener('change', extractDatetimeComponents);
+      });
+      
+      // Extract hour, day, month, weekday, year from datetime
+      function extractDatetimeComponents() {
+          const datetimeStr = document.getElementById('pickup_datetime').value;
+          
+          if (datetimeStr) {
+              // Force interpretation in local time to avoid timezone issues
+              const [datePart, timePart] = datetimeStr.split('T');
+              const [year, month, day] = datePart.split('-').map(Number);
+              const [hour, minute] = timePart.split(':').map(Number);
+              
+              // Create date object (month is 0-indexed in JavaScript)
+              const datetime = new Date(year, month - 1, day, hour, minute);
+              
+              // Set values in form fields
+              document.getElementById('hour').value = datetime.getHours();
+              document.getElementById('day').value = datetime.getDate();
+              document.getElementById('month').value = datetime.getMonth() + 1; // Convert back to 1-indexed
+              document.getElementById('weekday').value = datetime.getDay(); // 0 = Sunday, 6 = Saturday
+              document.getElementById('year').value = datetime.getFullYear();
+              
+              console.log("Datetime extracted:", {
+                  hour: document.getElementById('hour').value,
+                  day: document.getElementById('day').value,
+                  month: document.getElementById('month').value,
+                  weekday: document.getElementById('weekday').value,
+                  year: document.getElementById('year').value
+              });
+          }
+      }
+      
+      // Modify the initMap function to not calculate bearing
+      function initMap() {
+          const pickupLat = parseFloat(document.getElementById('pickup_latitude').value);
+          const pickupLng = parseFloat(document.getElementById('pickup_longitude').value);
+          const dropoffLat = parseFloat(document.getElementById('dropoff_latitude').value);
+          const dropoffLng = parseFloat(document.getElementById('dropoff_longitude').value);
+          
+          if(isNaN(pickupLat) || isNaN(pickupLng) || isNaN(dropoffLat) || isNaN(dropoffLng)) {
+              return;
+          }
+          
+          const mapPlaceholder = document.getElementById('map-placeholder');
+          
+          // Create map container if it doesn't exist
+          if(!document.getElementById('map')) {
+              mapPlaceholder.innerHTML = '';
+              const mapDiv = document.createElement('div');
+              mapDiv.id = 'map';
+              mapDiv.style.height = '300px';
+              mapDiv.style.borderRadius = '8px';
+              mapPlaceholder.appendChild(mapDiv);
+          }
+          
+          // Initialize the map if not already initialized
+          if (!map) {
+              map = L.map('map').setView([pickupLat, pickupLng], 12);
+              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              }).addTo(map);
+          } else {
+              map.setView([(pickupLat + dropoffLat) / 2, (pickupLng + dropoffLng) / 2], 12);
+          }
+          
+          // Add or update markers
+          if (pickupMarker) map.removeLayer(pickupMarker);
+          if (dropoffMarker) map.removeLayer(dropoffMarker);
+          if (routeLine) map.removeLayer(routeLine);
+          
+          pickupMarker = L.marker([pickupLat, pickupLng], {
+              icon: L.divIcon({
+                  className: 'custom-marker pickup-marker',
+                  html: '<i class="fas fa-map-marker-alt"></i>',
+                  iconSize: [25, 41]
+              })
+          }).addTo(map).bindPopup('Pickup Location');
+          
+          dropoffMarker = L.marker([dropoffLat, dropoffLng], {
+              icon: L.divIcon({
+                  className: 'custom-marker dropoff-marker',
+                  html: '<i class="fas fa-flag-checkered"></i>',
+                  iconSize: [25, 41]
+              })
+          }).addTo(map).bindPopup('Dropoff Location');
+          
+          // Draw a line between pickup and dropoff
+          routeLine = L.polyline([[pickupLat, pickupLng], [dropoffLat, dropoffLng]], {
+              color: '#4a89dc',
+              weight: 3,
+              opacity: 0.7,
+              dashArray: '10, 10'
+          }).addTo(map);
+      }
+      
+      // Simulate fare calculation and display results
+      function calculateAndDisplayFare() {
+    // Extract datetime components immediately before submission
+    extractDatetimeComponents();
+    
+    // Collect form data
+    const form = document.getElementById('prediction-form');
+    const formData = new FormData(form);
+    
+    // Debug: Log the datetime components to console
+    console.log("Hour:", document.getElementById('hour').value);
+    console.log("Day:", document.getElementById('day').value);
+    console.log("Month:", document.getElementById('month').value);
+    console.log("Weekday:", document.getElementById('weekday').value);
+    console.log("Year:", document.getElementById('year').value);
+    
+    // Send AJAX request to the server
+    fetch('/predict/', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            // Display the result
+            document.getElementById('prediction-text').textContent = data.fare;
+            document.getElementById('result-distance').textContent = parseFloat(formData.get('distance')).toFixed(2);
+            
+            // Show the prediction result
+            document.getElementById('prediction-result').style.display = 'block';
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while processing your request.');
+    });
+}
+      
+      // Close the prediction result
+      function closePrediction() {
+          document.getElementById('prediction-result').style.display = 'none';
+      }
+    </script>
+</body>
+
+</html>
