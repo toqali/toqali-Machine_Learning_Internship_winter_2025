@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taxi Fare Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background: #f9f9f9;
+            color: #333;
+            direction: ltr;
+            text-align: left;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        hr {
+            width: 50%;
+            margin: 20px auto;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            max-width: 900px;
+            margin: auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            grid-column: span 2;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #3498db;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .predict {
+            text-align: center;
+            font-size: 20px;
+            color: #27ae60;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🚖 Taxi Fare Prediction Form</h1>
+    <hr>
+
+    {% if fare and request.method == "POST" %}
+    <div class="predict">💰 Estimated Fare Amount: ${{ fare }}</div>
+    {% endif %}
+
+    <form action="" method="POST">
+        {% csrf_token %}
+
+        <label>🚗 Car Condition:
+            <select name="car_condition" required>
+                <option value="0">Bad</option>
+                <option value="1">Good</option>
+                <option value="2">Very Good</option>
+                <option value="3">Excellent</option>
+            </select>
+        </label>
+
+        <label>☁️ Weather Condition:
+            <select name="weather" required>
+                <option value="1">Sunny</option>
+                <option value="2">Windy</option>
+                <option value="3">Rainy</option>
+                <option value="4">Stormy</option>
+                <option value="5">Cloudy</option>
+            </select>
+        </label>
+
+        <label>🚦 Traffic Condition:
+            <select name="traffic_condition" required>
+                <option value="0">Light</option>
+                <option value="1">Moderate</option>
+                <option value="2">Heavy</option>
+            </select>
+        </label>
+
+        <label>👥 Passenger Count:
+            <select name="passenger_count" required>
+                {% for p in "0123456" %}
+                    <option value="{{ forloop.counter0 }}">{{ forloop.counter0 }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>🕒 Hour (0-23):
+            <select name="hour" required>
+                {% for h in "012345678901234567890123" %}
+                    <option value="{{ forloop.counter0 }}">{{ forloop.counter0 }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>📅 Day (1-31):
+            <select name="day" required>
+                {% for d in "1234567890123456789012345678901" %}
+                    <option value="{{ forloop.counter }}">{{ forloop.counter }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>📆 Month (1-12):
+            <select name="month" required>
+                {% for m in "123456789012" %}
+                    <option value="{{ forloop.counter }}">{{ forloop.counter }}</option>
+                {% endfor %}
+            </select>
+        </label>
+
+        <label>📊 Weekday (0 - 6):
+            <select name="weekday" required>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+            </select>
+        </label>
+
+        <label>🗓️ Year:
+            <select name="year" id="yearDropdown" required></select>
+        </label>
+
+        <script>
+            const yearDropdown = document.getElementById('yearDropdown');
+            for (let year = 2000; year <= 2030; year++) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearDropdown.appendChild(option);
+            }
+        </script>
+
+        <label>📏 Distance to JFK:
+            <input type="number" step="0.000001" name="jfk_dist" min="0" required>
+        </label>
+
+        <label>📏 Distance to EWR:
+            <input type="number" step="0.000001" name="ewr_dist" min="0" required>
+        </label>
+
+        <label>📏 Distance to LGA:
+            <input type="number" step="0.000001" name="lga_dist" min="0" required>
+        </label>
+
+        <label>🗽 Distance to Statue of Liberty:
+            <input type="number" step="0.000001" name="sol_dist" min="0" required>
+        </label>
+
+        <label>🏙️ Distance to NYC:
+            <input type="number" step="0.000001" name="nyc_dist" min="0" required>
+        </label>
+
+        <label>📐 Total Distance:
+            <input type="number" step="0.000001" name="distance" min="0" required>
+        </label>
+
+        <label>🧭 Bearing (°):
+            <input type="number" name="bearing" step="0.000001" required>
+        </label>
+
+        <button type="submit">📊 Predict Fare</button>
+    </form>
+
+</body>
+
+</html>
