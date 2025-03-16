@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Taxi Fare Prediction</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f4f4;
+          text-align: center;
+          padding: 20px;
+        }
+        form {
+          background: white;
+          padding: 20px;
+          border-radius: 8px;
+          box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+          max-width: 400px;
+          margin: auto;
+        }
+        label, select, input, button {
+          width: 100%;
+          margin: 10px 0;
+          padding: 8px;
+          font-size: 16px;
+        }
+        button {
+          background-color: #28a745;
+          color: white;
+          border: none;
+          cursor: pointer;
+          font-size: 18px;
+        }
+        button:hover {
+          background-color: #218838;
+        }
+        h3 {
+          color: #333;
+        }
+      </style>
+  </head>
+  <body>
+    <h2>Enter Ride Details</h2>
+    <form id="predictionForm">
+      <label>Car Condition:</label>
+      <select id="car_condition" required>
+        <option value="Very Good">Very Good</option>
+        <option value="Excellent">Excellent</option>
+        <option value="Bad">Bad</option>
+        <option value="Good">Good</option>
+      </select><br /><br />
+
+      <label>Weather:</label>
+      <select id="weather" required>
+        <option value="windy">Windy</option>
+        <option value="cloudy">Cloudy</option>
+        <option value="stormy">Stormy</option>
+        <option value="sunny">Sunny</option>
+        <option value="rainy">Rainy</option>
+      </select><br /><br />
+
+      <label>Traffic Condition:</label>
+      <select id="traffic_condition" required>
+        <option value="Congested Traffic">Congested Traffic</option>
+        <option value="Flow Traffic">Flow Traffic</option>
+        <option value="Dense Traffic">Dense Traffic</option>
+      </select><br /><br />
+
+      <label>Pickup Date & Time:</label>
+      <input type="datetime-local" id="pickup_datetime" required /><br /><br />
+
+      <label>Pickup Longitude:</label>
+      <input type="number" step="any" id="pickup_longitude" required readonly /><br /><br />
+
+      <label>Pickup Latitude:</label>
+      <input type="number" step="any" id="pickup_latitude" required readonly /><br /><br />
+
+      <label>Dropoff Longitude:</label>
+      <input type="number" step="any" id="dropoff_longitude" required /><br /><br />
+
+      <label>Dropoff Latitude:</label>
+      <input type="number" step="any" id="dropoff_latitude" required /><br /><br />
+
+      <label>Passenger Count:</label>
+      <input type="number" id="passenger_count" required /><br /><br />
+
+      <button type="submit">Predict Fare</button>
+    </form>
+
+    <h3 id="prediction_result"></h3>
+
+    <script>
+      function getLocation() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            function (position) {
+              document.getElementById("pickup_latitude").value = position.coords.latitude;
+              document.getElementById("pickup_longitude").value = position.coords.longitude;
+            },
+            function (error) {
+              console.error("Error getting location: ", error);
+              alert("Location access denied. Please enter pickup coordinates manually.");
+            }
+          );
+        } else {
+          alert("Geolocation is not supported by this browser.");
+        }
+      }
+
+      window.onload = getLocation;
+
+      document
+        .getElementById("predictionForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          const pickup_datetime = new Date(
+            document.getElementById("pickup_datetime").value
+          );
+
+          const formData = {
+            Car_Condition: document.getElementById("car_condition").value,
+            Weather: document.getElementById("weather").value,
+            Traffic_Condition: document.getElementById("traffic_condition").value,
+            pickup_datetime: pickup_datetime.toISOString(),
+            pickup_longitude: parseFloat(
+              document.getElementById("pickup_longitude").value
+            ),
+            pickup_latitude: parseFloat(
+              document.getElementById("pickup_latitude").value
+            ),
+            dropoff_longitude: parseFloat(
+              document.getElementById("dropoff_longitude").value
+            ),
+            dropoff_latitude: parseFloat(
+              document.getElementById("dropoff_latitude").value
+            ),
+            passenger_count: parseInt(
+              document.getElementById("passenger_count").value
+            ),
+            hour: pickup_datetime.getHours(),
+            day: pickup_datetime.getDate(),
+            month: pickup_datetime.getMonth() + 1,
+            year: pickup_datetime.getFullYear(),
+            weekday: pickup_datetime.getDay(),
+          };
+
+          fetch("http://127.0.0.1:3000/predict", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ features: formData }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              document.getElementById("prediction_result").innerText =
+                "Predicted Fare: $" + data.predict;
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              document.getElementById("prediction_result").innerText =
+                "Error in prediction!";
+            });
+        });
+    </script>
+  </body>
+</html>
