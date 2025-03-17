@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home Page</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      /* Page Loader */
+      .loader {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        background: black;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+      .loader-hidden {
+        display: none;
+      }
+
+      /* Background Styling */
+      body {
+        background: url("https://source.unsplash.com/1600x900/?nature,universe")
+          no-repeat center center fixed;
+        background-size: cover;
+        color: white;
+        text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7);
+        transition: background 0.3s ease-in-out;
+      }
+
+      /* Hero Animation */
+      .animate-fade {
+        opacity: 0;
+        transform: translateY(-10px);
+        animation: fadeIn 1.5s forwards;
+      }
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Quote Box */
+      .quote-box {
+        background: rgba(0, 0, 0, 0.6);
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        max-width: 700px;
+        margin: 30px auto;
+      }
+
+      /* Dark Mode Styling */
+      .dark-mode {
+        background-color: #121212;
+        color: white;
+      }
+      .dark-mode .quote-box {
+        background: rgba(255, 255, 255, 0.2);
+      }
+      .dark-mode .card {
+        background-color: #222;
+        color: white;
+      }
+      .dark-mode .navbar {
+        background-color: #333 !important;
+      }
+
+      /* Scroll to Top Button */
+      #scroll-top {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Page Loader -->
+    <div id="loader" class="loader">
+      <div class="spinner-border text-light" role="status"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="#">My Django App</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a class="nav-link active" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">About</a>
+            </li>
+          </ul>
+          <button class="btn btn-light ms-3" id="dark-mode-toggle">
+            Dark Mode
+          </button>
+          <button class="btn btn-success ms-3" id="music-toggle">
+            Play Music 🎵
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="container text-center mt-5">
+      <div id="hero" class="animate-fade">
+        <h1 class="display-5" id="typewriter"></h1>
+        <p class="lead">Explore, learn, and get inspired!</p>
+        <h2 id="live-clock">Loading...</h2>
+        <a href="/about/" class="btn btn-primary btn-lg mt-3">Learn More</a>
+      </div>
+    </div>
+
+    <!-- Deep Quotes Section -->
+    <div class="quote-box mt-5">
+      <h3>Deep Thought for Today</h3>
+      <p id="quote">
+        "The only way to do great work is to love what you do." – Steve Jobs
+      </p>
+    </div>
+
+    <!-- Fun Fact Section -->
+    <div class="text-center mt-4">
+      <h3>Did You Know?</h3>
+      <p id="fun-fact">Loading fact...</p>
+    </div>
+
+    <!-- Weather Section -->
+    <div class="text-center mt-4">
+      <h3>Current Weather</h3>
+      <p id="weather">Fetching weather...</p>
+    </div>
+
+    <!-- Scroll to Top Button -->
+    <button id="scroll-top" class="btn btn-secondary">⬆️ Back to Top</button>
+
+    <!-- Footer with Copyright -->
+    <footer class="text-center mt-5 p-3 bg-dark text-white">
+      <p>&copy; 2024 Omar Medhat. All rights reserved.</p>
+    </footer>
+
+    <audio
+      id="bg-music"
+      src="https://www.bensound.com/bensound-music/bensound-sunny.mp3"
+      loop
+    ></audio>
+
+    <!-- JavaScript -->
+    <script>
+      // Page Loader
+      window.addEventListener("load", function () {
+        document.getElementById("loader").classList.add("loader-hidden");
+      });
+
+      // Typewriter Effect
+      let text = "Welcome to My Django App";
+      let i = 0;
+      function typeWriterEffect() {
+        if (i < text.length) {
+          document.getElementById("typewriter").innerHTML += text.charAt(i);
+          i++;
+          setTimeout(typeWriterEffect, 100);
+        }
+      }
+      window.onload = typeWriterEffect;
+
+      // Live Clock
+      function updateClock() {
+        let now = new Date();
+        let timeString = now.toLocaleTimeString();
+        document.getElementById("live-clock").innerText = timeString;
+      }
+      setInterval(updateClock, 1000);
+      updateClock();
+
+      // Random Quotes
+      const quotes = [
+        "“Do what you can, with what you have, where you are.” – Theodore Roosevelt",
+        "“The mind is everything. What you think you become.” – Buddha",
+        "“Your time is limited, so don’t waste it living someone else’s life.” – Steve Jobs",
+      ];
+      function displayRandomQuote() {
+        document.getElementById("quote").innerText =
+          quotes[Math.floor(Math.random() * quotes.length)];
+      }
+      setInterval(displayRandomQuote, 5000);
+
+      // Fun Fact API
+      async function getFunFact() {
+        let response = await fetch(
+          "https://uselessfacts.jsph.pl/random.json?language=en"
+        );
+        let data = await response.json();
+        document.getElementById("fun-fact").innerText = data.text;
+      }
+      getFunFact();
+
+      // Weather API
+      async function getWeather() {
+        navigator.geolocation.getCurrentPosition(async function (position) {
+          let apiKey = "YOUR_OPENWEATHER_API_KEY";
+          let url = `https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=${apiKey}&units=metric`;
+          let response = await fetch(url);
+          let data = await response.json();
+          document.getElementById(
+            "weather"
+          ).innerText = `${data.name}: ${data.weather[0].description}, ${data.main.temp}°C`;
+        });
+      }
+      getWeather();
+
+      // Scroll to Top
+      let scrollButton = document.getElementById("scroll-top");
+      scrollButton.addEventListener("click", function () {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+
+      // Dark Mode
+      document
+        .getElementById("dark-mode-toggle")
+        .addEventListener("click", function () {
+          document.body.classList.toggle("dark-mode");
+        });
+    </script>
+  </body>
+</html>
