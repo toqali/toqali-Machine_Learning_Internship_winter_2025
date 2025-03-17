@@ -1,0 +1,52 @@
+{% extends 'cellula_app/base.html' %}
+
+{% block content %}
+<h2 class="text-center text-white mb-4">Booking Dashboard</h2>
+
+<!-- Search and Filter Form -->
+<form method="GET" class="d-flex mb-4">
+    <input class="form-control me-2" type="search" placeholder="Search..." name="q" value="{{ request.GET.q }}">
+    <select name="filter_by" class="form-select me-2">
+        <option value="booking_id" {% if request.GET.filter_by == 'booking_id' %}selected{% endif %}>Booking ID</option>
+        <option value="room_type" {% if request.GET.filter_by == 'room_type' %}selected{% endif %}>Room Type</option>
+        <option value="booking_status" {% if request.GET.filter_by == 'booking_status' %}selected{% endif %}>Booking Status</option>
+    </select>
+    <button class="btn btn-primary" type="submit">Search</button>
+</form>
+
+<!-- Booking Data Table -->
+<div class="table-responsive bg-light text-dark rounded shadow p-3">
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Booking ID</th>
+                <th>Adults</th>
+                <th>Children</th>
+                <th>Room Type</th>
+                <th>Booking Status</th>
+                <th>Reservation Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.booking_id }}</td>
+                    <td>{{ booking.number_of_adults }}</td>
+                    <td>{{ booking.number_of_children }}</td>
+                    <td>{{ booking.room_type }}</td>
+                    <td>{{ booking.booking_status }}</td>
+                    <td>{{ booking.date_of_reservation|date:"F j, Y" }}</td>
+                    <td>
+                        <a href="{% url 'booking_detail' booking.booking_id %}" class="btn btn-info btn-sm">View</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center">No bookings found</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

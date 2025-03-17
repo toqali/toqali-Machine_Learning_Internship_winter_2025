@@ -1,0 +1,24 @@
+{% extends 'cellula_app/base.html' %}
+
+{% block content %}
+<h2 class="text-center text-primary mb-4">Booking Details</h2>
+
+<div class="card bg-light text-dark p-4 shadow-lg">
+    <p><strong>Booking ID:</strong> {{ booking.booking_id }}</p>
+    <p><strong>Number of Adults:</strong> {{ booking.number_of_adults }}</p>
+    <p><strong>Number of Children:</strong> {{ booking.number_of_children }}</p>
+    <p><strong>Room Type:</strong> {{ booking.room_type }}</p>
+    <p><strong>Lead Time:</strong> {{ booking.lead_time }} days</p>
+    <p><strong>Market Segment:</strong> {{ booking.market_segment_type }}</p>
+    <p><strong>Repeated Guest:</strong> {% if booking.repeated %} Yes {% else %} No {% endif %}</p>
+    <p><strong>Car Parking Space:</strong> {% if booking.car_parking_space %} Yes {% else %} No {% endif %}</p>
+    <p><strong>Average Price:</strong> ${{ booking.average_price }}</p>
+    <p><strong>Special Requests:</strong> {{ booking.special_requests }}</p>
+    <p><strong>Date of Reservation:</strong> {{ booking.date_of_reservation|date:"F j, Y" }}</p>
+    <p><strong>Booking Status:</strong> {{ booking.booking_status }}</p>
+</div>
+
+<div class="text-center mt-4">
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}
