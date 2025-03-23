@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Fare Result - Uber Fare Predictor{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* This wrapper ensures the page fills the screen and centers content */
+  .result-page {
+    min-height:80vh;        /* Enough vertical space to fill the page */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-top: 6rem;        /* If your navbar is fixed, give top spacing to avoid overlap */
+  }
+
+  .result-container {
+    background: var(--secondary-bg);
+    padding: 3rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 1000px;
+    width: 90%;              /* So it’s responsive on smaller screens */
+    text-align: center;
+  }
+
+  .result-title {
+    font-size: 4rem;       /* Bigger title */
+    color: var(--primary-accent);
+    margin-bottom: 1.5rem;
+  }
+
+  .fare {
+    font-size:5rem;         /* Larger fare amount */
+    font-weight: 800;
+    color: var(--secondary-accent);
+    margin: 1rem 0 2rem;     /* Extra bottom margin for spacing */
+  }
+
+  /* Optional additional text to fill space or provide disclaimers */
+  .disclaimer {
+    font-size: 1.3rem;
+    color: #ccc;             /* Subtle text color */
+    margin-top: 1.5rem;
+    line-height: 1.4;
+  }
+
+  /* Make the button bigger to match the new scale */
+  .btn-primary {
+    font-size: 1.5rem;
+    padding: 1rem 2rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="result-page">
+  <div class="result-container">
+    <h2 class="result-title">Your Fare Estimate</h2>
+    <p class="fare">$ {{fare }}</p>
+    <a href="{% url 'predict_fare' %}" class="btn-primary">Predict Again</a>
+
+    <!-- Optional text to fill space and make the page look more complete -->
+    <p class="disclaimer">
+      This fare estimate is based on the information provided and historical data.
+      Actual prices may vary due to traffic, surge pricing, or other real-world factors.
+      Thank you for using our service!
+    </p>
+  </div>
+</div>
+{% endblock %}
