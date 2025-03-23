@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Uber Fare Predictor{% endblock %}</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Orbitron:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Leaflet CSS (if needed) -->
+  {% block map_css %}{% endblock map_css %}
+
+  <style>
+    :root {
+      --primary-bg: #1e1a2c;
+      --secondary-bg: #43345e;
+      --primary-accent: #a071ff;
+      --secondary-accent: #e888cd;
+      --text-color: #fff;
+      --font-family: 'Poppins', sans-serif;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family);
+      background: var(--primary-bg);
+      color: var(--text-color);
+      height: 100%;
+    }
+    .navbar {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      padding: 1rem 2rem;
+      background: var(--secondary-bg);
+      display: flex;
+      align-items: center;
+      box-sizing: border-box;
+      z-index: 999; /* so it stays on top of hero background */
+    }
+    .navbar .brand {
+      font-weight: bold;
+      font-size: 1.4rem;
+      margin-right: auto;  /* brand on the left */
+    }
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;       /* spacing between links */
+    }
+    .nav-links a {
+      color: var(--text-color);
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .nav-links a:hover {
+      color: var(--primary-accent);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      text-align: center;
+    }
+    .btn-primary {
+      background: var(--primary-accent);
+      color: var(--text-color);
+      padding: 1rem 2rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1.2rem;
+      font-weight: 600;
+      transition: background 0.3s ease;
+      border: none;
+      cursor: pointer;
+      display: inline-block;
+    }
+    .btn-primary:hover {
+      background: var(--secondary-accent);
+    }
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        padding: 1rem;
+      }
+      .navbar .nav-links {
+        margin-top: 1rem;
+      }
+    }
+  </style>
+  {% block extra_css %}{% endblock extra_css %}
+</head>
+<body>
+  <div class="navbar">
+    <div class="nav-links">
+      <a href="{% url 'home' %}">Home</a>
+      <a href="{% url 'predict_fare' %}">Predict</a>
+    </div>
+  </div>
+  {% block content %}{% endblock content %}
+  {% block map_js %}{% endblock map_js %}
+</body>
+</html>

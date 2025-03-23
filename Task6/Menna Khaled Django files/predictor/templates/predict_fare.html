@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Predict Fare - Uber Fare Predictor{% endblock %}
+
+{% block map_css %}
+<!-- Leaflet CSS (only if you need a map) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
+{% endblock map_css %}
+
+{% block extra_css %}
+<style>
+  /* Main container: wide, centered, responsive */
+  .predict-container {
+    width: 90%;               /* fluid width for responsiveness */
+    max-width: 1400px;        /* upper limit for large screens */
+    margin: 6rem auto 2rem;   /* center it (auto left/right) */
+    background: var(--secondary-bg);
+    padding: 3rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  /* Large page title */
+  .predict-title {
+    font-size: 3rem;
+    color: var(--primary-accent);
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  /* Two columns, spaced far apart */
+  .form-row {
+    display: flex;
+    justify-content: space-between; /* columns to far left & far right */
+    gap: 8rem;                      /* extra space between columns */
+    flex-wrap: wrap;               /* wrap on smaller screens */
+    margin-bottom: 2rem;
+  }
+
+  /* Each column gets ~35% of container, leaving big gap in center */
+  .form-column {
+    flex: 0 0 35%; 
+    min-width: 300px; /* ensures column doesn't shrink too small */
+  }
+
+  /* Larger labels and spacing */
+  .form-group {
+    margin: 1.5rem 0;
+    text-align: left;
+  }
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--text-color);
+  }
+
+  /* Bigger inputs/selects => bigger spinners & dropdown arrows */
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 1rem; 
+    border-radius: 5px;
+    border: 1px solid var(--primary-accent);
+    background: var(--primary-bg);
+    color: var(--text-color);
+    font-size: 1.3rem;  /* Increase => bigger numeric spinner & arrow */
+    font-weight: 500;
+  }
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: var(--secondary-accent);
+    box-shadow: 0 0 5px var(--secondary-accent);
+  }
+
+  /* Map styling */
+  #map {
+    width: 100%;
+    height: 400px;
+    margin: 1.5rem 0;
+    border: 2px solid var(--primary-accent);
+    border-radius: 8px;
+  }
+
+  /* Toggle buttons for pickup/dropoff */
+  .btn-toggle {
+    margin: 1rem;
+    padding: 1rem 2rem;
+    cursor: pointer;
+    background: var(--primary-accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.2rem; 
+  }
+  .btn-toggle:hover {
+    background: var(--secondary-accent);
+  }
+
+  /* Submit button row */
+  .submit-row {
+    text-align: center;
+    margin-top: 2rem;
+  }
+
+  /* Bigger Predict Fare button */
+  .btn-primary {
+    padding: 1.2rem 2.5rem;
+    font-size: 1.4rem;
+  }
+
+  /* Responsive for smaller screens */
+  @media (max-width: 900px) {
+    .form-row {
+      flex-direction: column; /* stack columns vertically */
+      gap: 2rem;             /* reduce gap */
+    }
+    .form-column {
+      flex: 1 1 100%;        /* each column full width */
+      min-width: auto;
+    }
+  }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="predict-container">
+  <h1 class="predict-title">Predict Fare</h1>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="form-row">
+      <!-- Left Column (7 features) -->
+      <div class="form-column">
+        <!-- 1) Car Condition -->
+        <div class="form-group">
+          <label for="car_condition">Car Condition</label>
+          <select name="car_condition" id="car_condition">
+            <option value="Very Good">Very Good</option>
+            <option value="Excellent">Excellent</option>
+            <option value="Bad">Bad</option>
+            <option value="Good">Good</option>
+          </select>
+        </div>
+        <!-- 2) Traffic Condition -->
+        <div class="form-group">
+          <label for="traffic_condition">Traffic Condition</label>
+          <select name="traffic_condition" id="traffic_condition">
+            <option value="Congested Traffic">Congested Traffic</option>
+            <option value="Flow Traffic">Flow Traffic</option>
+            <option value="Dense Traffic">Dense Traffic</option>
+          </select>
+        </div>
+        <!-- 3) Weather -->
+        <div class="form-group">
+          <label for="weather_encoded">Weather</label>
+          <select name="weather_encoded" id="weather_encoded">
+            <option value="windy">Windy</option>
+            <option value="cloudy">Cloudy</option>
+            <option value="stormy">Stormy</option>
+            <option value="sunny">Sunny</option>
+            <option value="rainy">Rainy</option>
+          </select>
+        </div>
+        <!-- 4) Passenger Count -->
+        <div class="form-group">
+          <label for="passenger_count">Passenger Count</label>
+          <input type="number" name="passenger_count" id="passenger_count" min="0" value="1">
+        </div>
+        <!-- 5) Hour -->
+        <div class="form-group">
+          <label for="hour">Hour (0-23)</label>
+          <input type="number" name="hour" id="hour" min="0" max="23" value="0">
+        </div>
+        <!-- 6) Day -->
+        <div class="form-group">
+          <label for="day">Day (1-31)</label>
+          <input type="number" name="day" id="day" min="1" max="31" value="1">
+        </div>
+        <!-- 7) Month -->
+        <div class="form-group">
+          <label for="month">Month (1-12)</label>
+          <input type="number" name="month" id="month" min="1" max="12" value="1">
+        </div>
+      </div>
+
+      <!-- Right Column (7 features) -->
+      <div class="form-column">
+        <!-- 8) Year -->
+        <div class="form-group">
+          <label for="year">Year (2009-2015)</label>
+          <input type="number" name="year" id="year" min="2009" max="2015" value="2009">
+        </div>
+        <!-- 9) Distance -->
+        <div class="form-group">
+          <label for="distance">Distance (km)</label>
+          <input type="number" name="distance" id="distance" step="0.01" value="1">
+        </div>
+        <!-- 10) Bearing -->
+        <div class="form-group">
+          <label for="bearing">Bearing</label>
+          <input type="number" name="bearing" id="bearing" step="0.0001" value="0">
+        </div>
+        <!-- 11) Pickup Latitude -->
+        <div class="form-group">
+          <label for="pickup_latitude">Pickup Latitude</label>
+          <input type="text" name="pickup_latitude" id="pickup_latitude" readonly>
+        </div>
+        <!-- 12) Pickup Longitude -->
+        <div class="form-group">
+          <label for="pickup_longitude">Pickup Longitude</label>
+          <input type="text" name="pickup_longitude" id="pickup_longitude" readonly>
+        </div>
+        <!-- 13) Dropoff Latitude -->
+        <div class="form-group">
+          <label for="dropoff_latitude">Dropoff Latitude</label>
+          <input type="text" name="dropoff_latitude" id="dropoff_latitude" readonly>
+        </div>
+        <!-- 14) Dropoff Longitude -->
+        <div class="form-group">
+          <label for="dropoff_longitude">Dropoff Longitude</label>
+          <input type="text" name="dropoff_longitude" id="dropoff_longitude" readonly>
+        </div>
+      </div>
+    </div>
+
+    <p>Select "Pickup" or "Dropoff" then click on the map to set coordinates.</p>
+    <button type="button" class="btn-toggle" id="pickupBtn">Pickup</button>
+    <button type="button" class="btn-toggle" id="dropoffBtn">Dropoff</button>
+    <div id="map"></div>
+
+    <div class="submit-row">
+      <button type="submit" class="btn-primary">Predict Fare</button>
+    </div>
+  </form>
+</div>
+{% endblock content %}
+
+{% block map_js %}
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+  var map = L.map('map').setView([40.7128, -74.0060], 11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a>'
+  }).addTo(map);
+
+  let mode = null; // "pickup" or "dropoff"
+  let pickupMarker = null;
+  let dropoffMarker = null;
+
+  document.getElementById('pickupBtn').addEventListener('click', function() {
+    mode = 'pickup';
+  });
+  document.getElementById('dropoffBtn').addEventListener('click', function() {
+    mode = 'dropoff';
+  });
+
+  map.on('click', function(e) {
+    if (!mode) return;
+    if (mode === 'pickup') {
+      if (pickupMarker) map.removeLayer(pickupMarker);
+      pickupMarker = L.marker(e.latlng).addTo(map);
+      document.getElementById('pickup_latitude').value = e.latlng.lat;
+      document.getElementById('pickup_longitude').value = e.latlng.lng;
+    } else {
+      if (dropoffMarker) map.removeLayer(dropoffMarker);
+      dropoffMarker = L.marker(e.latlng).addTo(map);
+      document.getElementById('dropoff_latitude').value = e.latlng.lat;
+      document.getElementById('dropoff_longitude').value = e.latlng.lng;
+    }
+  });
+</script>
+{% endblock map_js %}

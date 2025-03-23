@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Welcome - Uber Fare Predictor{% endblock %}
+
+{% block extra_css %}
+<style>
+  .hero {
+    background: url("{% static 'images/CAR_UBER.avif' %}") center/cover no-repeat;
+    position: relative;
+    min-height: 85vh; /* Reduced from 100vh */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin: 0; /* Remove default spacing */
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(30, 26, 44, 0.5); /* overlay */
+    z-index: 1;
+  }
+  .hero > * {
+    position: relative;
+    z-index: 2;
+  }
+  .page-title {
+    font-size: 4rem;   /* bigger heading */
+    color: #fff;
+    text-shadow: 0 0 10px #a071ff;
+    font-family: 'Orbitron', sans-serif;
+    margin-bottom: 1rem;
+  }
+  .hero p {
+    font-size: 1.8rem; /* bigger subtitle */
+    color: #fff;
+    text-shadow: 0 0 5px #e888cd;
+    margin: 1rem 0;
+  }
+
+  /* Bigger button */
+  .btn-gradient {
+    background-color: #e888cd;
+    color: #fff;
+    padding: 1.2rem 2.5rem;  
+    border-radius: 10px;
+    font-size: 1.5rem;     
+    text-decoration: none;
+    box-shadow: 0 0 10px #a071ff;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .btn-gradient:hover {
+    background-color: #a071ff;
+    box-shadow: 0 0 15px #e888cd;
+  }
+
+  .features {
+    background-color: #43345e;
+    padding: 1rem 0; 
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    color: #fff;
+    margin: 0;
+  }
+  .feature-item {
+    flex: 1;
+    margin: 0 1rem;
+  }
+  .feature-item h3 {
+    color: #a071ff;
+    margin-bottom: 0.5rem;
+  }
+
+  @media (max-width: 1024px) {
+    .hero {
+      min-height: 70vh; /* slightly smaller for mid-sized screens */
+    }
+  }
+  @media (max-width: 768px) {
+    .hero {
+      min-height: auto; /* let content define height on small screens */
+    }
+    .page-title {
+      font-size: 2.5rem; 
+    }
+    .hero p {
+      font-size: 1.2rem; 
+    }
+    .btn-gradient {
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+    }
+    .features {
+      flex-direction: column;
+      padding: 1rem;
+    }
+    .feature-item {
+      margin: 1rem 0;
+    }
+  }
+</style>
+{% endblock extra_css %}
+
+{% block content %}
+<div class="hero">
+  <h1 class="page-title">Welcome to the Uber Fare Predictor</h1>
+  <p>Get a futuristic ride estimate in seconds.</p>
+  <a href="{% url 'predict_fare' %}" class="btn-gradient">Predict Fare</a>
+</div>
+<section class="features">
+  <div class="feature-item">
+    <h3>Fast Predictions</h3>
+    <p>Get estimates in seconds.</p>
+  </div>
+  <div class="feature-item">
+    <h3>Accurate Results</h3>
+    <p>Based on real-world data.</p>
+  </div>
+  <div class="feature-item">
+    <h3>Easy to Use</h3>
+    <p>Simple and intuitive design.</p>
+  </div>
+</section>
+{% endblock content %}
